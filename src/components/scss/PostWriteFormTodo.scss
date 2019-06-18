@@ -1,0 +1,39 @@
+.PostWriteFormTodo{
+  .title_area{
+    position:absolute;
+    top:15%;
+    left:5%;
+    width:90%;
+    height:40px;
+    input{
+      box-sizing:border-box;
+      display:inline-block;
+      padding:0.5rem;
+      width:calc(100% - 60px);
+      height:100%;
+      border:1px solid #dee2e6;
+      vertical-align:top;
+    }
+    button{
+      display:inline-block;
+      width:60px;
+      height:100%;
+      background:#66a80f;
+      border:none;
+      color:#fff;
+      line-height:40px;
+      vertical-align:top;
+    }
+  }
+  .content_area{
+    box-sizing:border-box;
+    display:block;
+    margin:0 auto;
+    left:5%;
+    width:90%;
+    height:100%;
+    border:1px solid #dee2e6;
+    list-style:none;
+    overflow-y:auto;
+  }
+}

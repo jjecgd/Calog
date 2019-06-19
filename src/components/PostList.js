@@ -7,7 +7,8 @@ class PostList extends Component{
     const {
       posts, 
       onWrite, 
-      onRemove
+      onPostRemove,
+      onPostView
     } = this.props;
     
     const postList = posts.map(
@@ -17,9 +18,11 @@ class PostList extends Component{
             key={post.postId}
             postId={post.postId}
             postType={post.postType}
+            performRatio={post.performRatio}
             title={post.title} 
             content={post.content} 
-            onRemove={onRemove}
+            onPostRemove={onPostRemove}
+            onPostView={onPostView}
           />
         );
       }

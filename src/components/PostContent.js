@@ -3,32 +3,40 @@ import './scss/PostContent.scss';
 import TodoItem from './TodoItem';
 
 class PostContent extends Component{
-  handleRemove = () => {
+  handlePostRemove = (e) => {
     const {
       postId, 
-      onRemove
+      onPostRemove
     } = this.props;
-    onRemove(postId);
+
+    e.stopPropagation();
+    onPostRemove(postId);
   }
+
+  handlePostView = (e) => {
+    const {
+      postId,
+      onPostView
+    } = this.props;
+
+    e.stopPropagation();
+    onPostView(postId);
+  }
+
   render(){
+    const {
+      handlePostRemove,
+      handlePostView
+    } = this;
     const {
       title, 
       content,
-      postType
+      postType,
+      performRatio
     } = this.props;
-    let cnt = 0, todoPerformRate = 0;
-
-    if(postType === 'todo'){
-      content.forEach(item => {
-        if(item.isPerform){
-          cnt++;
-        }
-      });
-      todoPerformRate = (cnt / content.length) * 100
-    }
     
     return (
-      <li className="PostContent">
+      <li className="PostContent" onClick={handlePostView}>
         {
           (function(){
             if(postType === 'normal'){
@@ -42,11 +50,11 @@ class PostContent extends Component{
             }else if(postType === 'todo'){
               return (
                 <div>
-                  <p>{todoPerformRate}</p>
+                  <p>수행률 {performRatio}%의 Todo list</p>
                   <ul className="todo">
                     {
                       (function(){
-                        return content.map(item => <TodoItem key={item.todoId} isOnlyView={true} isPerform={item.isPerform}>{item.todo}</TodoItem>)
+                        return content.map(item => <TodoItem key={item.todoId} isPerform={item.isPerform}>{item.todo}</TodoItem>)
                       })()
                     }
                   </ul>
@@ -56,7 +64,7 @@ class PostContent extends Component{
           })()
         }
         
-        <button className="btn remove" onClick={this.handleRemove}>삭제</button>
+        <button className="btn remove" onClick={handlePostRemove}>삭제</button>
       </li>
     );
   }

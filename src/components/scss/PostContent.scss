@@ -19,7 +19,7 @@
     border:none;
     background:#dee2e6;
   }
-  & > b{
+  & > p{
     font-weight:300;
     height:300px;
     overflow:hidden;
@@ -34,11 +34,8 @@
     padding:!important 0.3rem;
     overflow:hidden;
     .TodoItem{
-      &.notPerform{
-        background:#ffc9c9;
-      }
-      &.perform{
-        background:#d3f9d8;
+      button{
+        display:none;
       }
     }
   }

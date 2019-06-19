@@ -38,7 +38,7 @@ class PostWriteFormTodo extends Component{
     } = this.props;
     const todoList = content.map(
       (item) => {
-        return (<TodoItem key={item.todoId} index={item.todoId} isOnlyView={false} onRemoveTodo={onRemoveTodo}>{item.todo}</TodoItem>);
+        return (<TodoItem key={item.todoId} index={item.todoId} onRemoveTodo={onRemoveTodo}>{item.todo}</TodoItem>);
       }
     );
 

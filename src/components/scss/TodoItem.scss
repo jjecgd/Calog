@@ -26,9 +26,10 @@
     border:none;
     outline:none;
   }
-  &.only_view{
-    button{
-      display:none;
-    }
+  &.notPerform{
+    background:#ffc9c9;
+  }
+  &.perform{
+    background:#d3f9d8;
   }
 }

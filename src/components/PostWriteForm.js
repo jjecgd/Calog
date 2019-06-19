@@ -7,13 +7,13 @@ class PostWriteForm extends Component{
   render(){
     const {
       onChangeForm,
-      onWriteModeChange,
+      onPostTypeChange,
       onAddTodo,
       onRemoveTodo,
-      onPost,
+      onPostUpload,
       onCancel,
       writeForm,
-      writeMode
+      postType
     } = this.props;
 
     const {
@@ -24,13 +24,13 @@ class PostWriteForm extends Component{
     const {
       normal,
       todo
-    } = writeMode
+    } = postType
 
     return (
       <form className="PostWriteForm">
         <div className="type_area">
-          <button name="normal" className={normal ? 'on' : ''} onClick={onWriteModeChange}>일반포스팅</button>
-          <button name="todo" className={todo ? 'on' : ''} onClick={onWriteModeChange}>TodoList</button>
+          <button name="normal" className={normal ? 'on' : ''} onClick={onPostTypeChange}>일반포스팅</button>
+          <button name="todo" className={todo ? 'on' : ''} onClick={onPostTypeChange}>TodoList</button>
         </div>
         {
           (function(){
@@ -59,7 +59,7 @@ class PostWriteForm extends Component{
         }
         <div className="btn_group">
           <button className="btn cancel" onClick={onCancel}>취소</button>
-          <button className="btn write" onClick={onPost}>게시</button>
+          <button className="btn write" onClick={onPostUpload}>게시</button>
         </div>
       </form>
     );

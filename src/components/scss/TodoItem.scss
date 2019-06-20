@@ -2,9 +2,11 @@
   position:relative;
   box-sizing:border-box;
   padding:0.3rem 60px 0.3rem 0.3rem;
-  margin-bottom:1px;
   width:100%;
   background:#f8f9fa;
+  & + &{
+    margin-top:1px;
+  }
   &:nth-child(odd){
     background:#fff;
   }

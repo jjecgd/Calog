@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PostList from './components/PostList';
-import PostWriteForm from './components/PostWriteForm';
+import PostWrite from './components/PostWrite';
 import PostView from './components/PostView';
 import './App.css';
 
@@ -9,15 +9,16 @@ class App extends Component{
     isPopup : false,
     isWrite : false,
     isView : false,
-    postType : { // 글쓰기 모드
-      normal : true,
-      todo : false
-    },
+    isModify : false,
     writeForm : { // 글쓰기 폼에 입력된 데이터
       title : '',
-      content : ''
+      content : '',
+      todoTitle : '',
+      todoContent : []
     },
     viewPostIndex : -1,
+    viewPostId : -1,
+    modifyPostId : -1,
     posts : []
   }
   postId = this.state.posts.length
@@ -27,69 +28,153 @@ class App extends Component{
       isPopup : false,
       isWrite : false,
       isView : false,
-      postType : {
-        normal : true,
-        todo : false
-      },
       writeForm : {
         title : '',
-        content : ''
+        content : '',
+        todoTitle : '',
+        todoContent : []
       },
-      viewPostIndex : -1
+      viewPostIndex : -1,
+      viewPostId : -1,
+      modifyPostId : -1
     });
   }
-  handleWrite = () => { // 글쓰기 버튼 클릭
+  handlePostClose = (e) => { // 글쓰기 / 글보기 닫음
+    e.preventDefault();
+    this.initState();
+  }
+  handlePostStart = () => { // 글쓰기 버튼 클릭
     this.setState({
       isPopup : true,
       isWrite : true
     });
   }
-  handleChange = (e) => { // 글쓰기 폼에서 입력
+  handlePostUpload = (e) => { // 포스팅
+    e.preventDefault();
+    const {title, content, todoContent} = this.state.writeForm;
+
+    this.initState();
+    this.setState({
+      posts : this.state.posts.concat({
+        postId : this.postId++,
+        title : title,
+        content : content,
+        todoContent : [...todoContent],
+        performRatio : 0
+      })
+    });
+  }
+  handlePostRemove = (postId) => { // 포스트 삭제
+    const {posts} = this.state;
+    this.initState();
+    this.setState({
+      posts : posts.filter((post) => post.postId !== postId)
+    });
+  }
+  handlePostWrite = (e) => { // 글쓰기 폼에서 입력
+    const {writeForm} = this.state;
     this.setState({
       writeForm : {
-        ...this.state.writeForm,
+        ...writeForm,
         [e.target.name] : e.target.value
       }
     });
   }
-  handleAddTodo = (todo, todoId) => { // 투두아이템 추가
-    const {title, content} = this.state.writeForm;
+  handlePostView = (postId) => { // 글 보기
+    const {posts} = this.state;
+    this.setState({
+      isPopup : true,
+      isView : true,
+      viewPostIndex : posts.findIndex((post) => post.postId === postId),
+      viewPostId : postId
+    });
+  }
+  handlePostModify = (obj, postId) => {
+    console.log(postId);
+    this.initState();
+    this.setState({
+      isPopup : true,
+      isModify : true,
+      writeForm : {
+        ...this.state.writeForm,
+        ...obj
+      },
+      modifyPostId : postId
+    });
+  }
+  handlePostModifyUpload = (e) => {
+    e.preventDefault();
+    const {title, content, todoContent} = this.state.writeForm;
+    let cnt = 0;
 
-    if(title === ''){
+    this.setState({
+      posts : this.state.posts.map(
+        post => {
+          if(post.postId === this.state.modifyPostId){
+            return {
+              ...post,
+              title : title,
+              content : content,
+              todoContent : todoContent.map(
+                (todo) => {
+                  if(todo.isPerform){
+                    cnt++;
+                  }
+                  return {...todo};
+                }
+              ),
+              performRatio : ((cnt / todoContent.length) * 100).toFixed(1)
+            };
+          }else{
+            return {...post};
+          }
+        }
+      )
+    });
+    this.initState();
+  }
+  handleTodoAdd = (todo) => { // 투두아이템 추가
+    const {writeForm} = this.state;
+    const {todoTitle, todoContent} = writeForm;
+    const todoId = todoContent.length > 0 ? (todoContent[todoContent.length - 1].todoId) + 1 : 0;
+    console.log(todoId);
+    if(todoTitle === ''){
       alert('항목을 입력하세요.');
       return;
     }
 
     this.setState({
       writeForm : {
-        title : '',
-        content : content.concat({todoId, todo, isPerform : false})
+        ...writeForm,
+        todoTitle : '',
+        todoContent : todoContent.concat({todoId, todo, isPerform : false})
       }
     });
   }
-  handleRemoveTodo = (todoId) => { // 투두아이템 삭제
-    const {content} = this.state.writeForm;
+  handleTodoRemove = (todoId) => { // 투두아이템 삭제
+    const {writeForm} = this.state;
+    const {todoContent} = writeForm;
     this.setState({
       writeForm : {
-        ...this.state.writeForm,
-        content : content.filter(
-          item => item.todoId !== todoId
+        ...writeForm,
+        todoContent : todoContent.filter(
+          (item) => item.todoId !== todoId
         )
       }
     });
   }
-  handleToggleTodo = (todoId) => { // 투두아이템 토글 - 글 보기에서만 가능
+  handleTodoToggle = (todoId) => { // 투두아이템 토글 - 글 보기에서만 가능
     const {posts, viewPostIndex} = this.state;
     const targetPost = posts[viewPostIndex];
     let cnt = 0;
 
     this.setState({
       posts : posts.map(
-        post => {
+        (post) => {
           if(post.postId === targetPost.postId){
             return {
               ...post, 
-              content : post.content.map(
+              todoContent : post.todoContent.map(
                 (todo) => {
                   if(todo.isPerform){
                     cnt++;
@@ -106,7 +191,7 @@ class App extends Component{
                   }
                 }
               ),
-              performRatio : ((cnt / post.content.length) * 100).toFixed(1)
+              performRatio : ((cnt / post.todoContent.length) * 100).toFixed(1)
             }
           }else{
             return {...post};
@@ -115,137 +200,76 @@ class App extends Component{
       )
     });
   }
-  handleCancel = () => { // 글쓰기 취소
-    this.initState();
-  }
-  handlePostUpload = (e) => { // 포스팅
-    const {normal, todo} = this.state.postType;
-    const {title, content} = this.state.writeForm;
-
-    e.preventDefault();
-
-    if(normal){
-      if(title === ''){
-        alert('제목을 입력하세요.');
-        return;
-      }else if(content === ''){
-        alert('내용을 입력하세요.');
-        return;
-      }
-    }
-
-    if(todo && content.length === 0){
-      alert('투두리스트 항목을 추가하세요.');
-      return;
-    }
-
-    this.initState();
-    this.setState({
-      posts : this.state.posts.concat({
-        postType : normal ? 'normal' : todo ? 'todo' : '',
-        postId : this.postId++,
-        title,
-        content,
-        performRatio : 0
-      })
-    });
-  }
-  handlePostTypeChange = (e) => { // 글쓰기 유형 변경
-    const {postType} = this.state;
-
-    e.preventDefault();
-
-    if(e.target.name === 'todo'){
-      this.setState({
-        writeForm : {
-          title : '',
-          content : []
-        }
-      });
-    }else{
-      this.setState({
-        writeForm : {
-          title : '',
-          content : ''
-        }
-      });
-    }
-    
-    this.setState({
-      postType : (()=>{
-        const temp = {};
-        for(let a in postType){
-          temp[a] = false;
-        }
-        temp[e.target.name] = true;
-        return temp;
-      })()
-    });
-  }
-  handlePostRemove = (postId) => { // 포스트 삭제
-    const {posts} = this.state;
-    this.setState({
-      posts : posts.filter((post) => post.postId !== postId)
-    });
-  }
-  handlePostView = (postId) => {
-    const {posts} = this.state;
-    this.setState({
-      isPopup : true,
-      isView : true,
-      viewPostIndex : posts.findIndex((post) => post.postId === postId),
-    });
-  }
   render(){
     const {
-      handleWrite,
-      handlePostTypeChange,
-      handlePostRemove,
+      handlePostClose,
+      handlePostStart,
       handlePostUpload,
+      handlePostRemove,
+      handlePostWrite,
       handlePostView,
-      handleChange,
-      handleAddTodo,
-      handleRemoveTodo,
-      handleToggleTodo,
-      handleCancel,
+      handlePostModify,
+      handlePostModifyUpload,
+      handleTodoAdd,
+      handleTodoRemove,
+      handleTodoToggle
     } = this;
     const {
       isPopup,
       isWrite,
       isView,
-      posts,
+      isModify,
       writeForm,
-      postType,
-      viewPostIndex
+      viewPostIndex,
+      viewPostId,
+      posts
     } = this.state;
 
     return (
       <div className="App">
         <header><h1>Todo</h1></header>
-        <PostList posts={posts} onWrite={handleWrite} onPostRemove={handlePostRemove} onPostView={handlePostView}/>
+        <PostList 
+          posts={posts} 
+          onPostStart={handlePostStart} 
+          onPostRemove={handlePostRemove} 
+          onPostView={handlePostView}
+        />
         <div className={`popup_wrap ${isPopup ? 'on' : ''}`}>
           {
             (()=>{
               if(isWrite){
                 return (
-                  <PostWriteForm 
-                    onCancel={handleCancel}
-                    onChangeForm={handleChange}
-                    onPostTypeChange={handlePostTypeChange}
+                  <PostWrite
+                    onPostClose={handlePostClose}
                     onPostUpload={handlePostUpload}
-                    onAddTodo={handleAddTodo}
-                    onRemoveTodo={handleRemoveTodo}
-                    writeForm={writeForm} 
-                    postType={postType}
+                    onPostWrite={handlePostWrite}
+                    onTodoAdd={handleTodoAdd}
+                    onTodoRemove={handleTodoRemove}
+                    writeForm={writeForm}
                   />
                 );
               }else if(isView){
                 return (
                   <PostView
+                    onPostClose={handlePostClose}
+                    onPostRemove={handlePostRemove}
+                    onPostModify={handlePostModify}
+                    onTodoRemove={handleTodoRemove}
+                    onTodoToggle={handleTodoToggle}
+                    viewPostId={viewPostId}
                     post={posts[viewPostIndex]}
-                    onRemoveTodo={handleRemoveTodo}
-                    onToggleTodo={handleToggleTodo}
-                    onCancel={handleCancel}
+                  />
+                );
+              }else if(isModify){
+                return (
+                  <PostWrite
+                    onPostClose={handlePostClose}
+                    onPostUpload={handlePostModifyUpload}
+                    onPostWrite={handlePostWrite}
+                    onTodoAdd={handleTodoAdd}
+                    onTodoRemove={handleTodoRemove}
+                    isModify={isModify}
+                    writeForm={writeForm}
                   />
                 );
               }

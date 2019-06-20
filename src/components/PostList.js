@@ -5,24 +5,24 @@ import './scss/PostList.scss';
 class PostList extends Component{
   render(){
     const {
-      posts, 
-      onWrite, 
+      onPostStart, 
       onPostRemove,
-      onPostView
+      onPostView,
+      posts
     } = this.props;
     
     const postList = posts.map(
       (post) => {
         return (
           <PostContent 
-            key={post.postId}
-            postId={post.postId}
-            postType={post.postType}
-            performRatio={post.performRatio}
-            title={post.title} 
-            content={post.content} 
             onPostRemove={onPostRemove}
             onPostView={onPostView}
+            key={post.postId}
+            postId={post.postId}
+            performRatio={post.performRatio}
+            title={post.title} 
+            content={post.content}
+            todoContent={post.todoContent}
           />
         );
       }
@@ -32,7 +32,7 @@ class PostList extends Component{
         <ul className="list_area">
           {postList}
         </ul>
-        <button className="btn write" onClick={onWrite}>글 작성</button>
+        <button className="btn write" onClick={onPostStart}>글 작성</button>
       </section>
     );
   }

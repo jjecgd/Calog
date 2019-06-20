@@ -2,41 +2,41 @@ import React, {Component} from 'react';
 import './scss/TodoItem.scss';
 
 class TodoItem extends Component{
-  handleRemoveTodo = (e) => {
+  handleTodoRemove = (e) => {
     const {
       index,
-      onRemoveTodo
+      onTodoRemove
     } = this.props;
 
     e.stopPropagation();
     e.preventDefault();
-    onRemoveTodo(index);
+    onTodoRemove(index);
   }
-  handleToggleTodo = (e) => {
-    if(!this.props.onToggleTodo){
+  handleTodoToggle = (e) => {
+    if(!this.props.onTodoToggle){
       return;
     }
     const {
       index,
-      onToggleTodo
+      onTodoToggle
     } = this.props;
 
     e.stopPropagation();
-    onToggleTodo(index);
+    onTodoToggle(index);
   }
   render(){
     const {
-      handleRemoveTodo,
-      handleToggleTodo
+      handleTodoRemove,
+      handleTodoToggle
     } = this;
     const {
       isOnlyView,
       isPerform
     } = this.props;
     return (
-      <li className={`TodoItem ${(isPerform) ? 'perform' : 'notPerform'}`} onClick={handleToggleTodo}>
+      <li className={`TodoItem ${(isPerform) ? 'perform' : 'notPerform'}`} onClick={handleTodoToggle}>
         <p>{this.props.children}</p>
-        {isOnlyView ? null : (<button onClick={handleRemoveTodo}>Delete</button>)}
+        {isOnlyView ? null : (<button onClick={handleTodoRemove}>Delete</button>)}
       </li>
     );
   }

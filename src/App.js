@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import PostList from './components/PostList';
 import PostWrite from './components/PostWrite';
 import PostView from './components/PostView';
-import './App.css';
+import './App.scss';
 
 class App extends Component{
   state = {

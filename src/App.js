@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import moment from 'moment';
 import PostList from './components/PostList';
 import PostWrite from './components/PostWrite';
 import PostView from './components/PostView';

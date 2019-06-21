@@ -21,6 +21,11 @@
     border:none;
     background:$oc-gray-3;
   }
+  .upload_date{
+    text-align:right;
+    color:$oc-gray-6;
+    font-size:0.9rem;
+  }
   .content{
     margin-bottom:0.6rem;
     max-height:200px;

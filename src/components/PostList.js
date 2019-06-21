@@ -20,6 +20,8 @@ class PostList extends Component{
             title={post.title} 
             content={post.content}
             todoContent={post.todoContent}
+            date={post.date}
+            modifyDate={post.modifyDate}
             key={post.postId}
             postId={post.postId}
             performRatio={post.performRatio}

@@ -30,14 +30,18 @@ class PostContent extends Component{
       title, 
       content,
       todoContent,
+      date,
+      modifyDate,
       performRatio
     } = this.props;
-    
+    console.log(modifyDate);
+
     return (
       <li className="PostContent" onClick={handlePostView}>
         <div>
           <b className="title">{title}</b>
           <hr/>
+          <p className="upload_date">{date}</p>
           <p className="content">{content}</p>
           {todoContent.length > 0 ? <p className="perform_ratio">수행률 <span>{performRatio}%</span>의 Todo list</p> : null}
         </div>

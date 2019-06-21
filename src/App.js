@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import moment from 'moment';
 import PostList from './components/PostList';
 import PostWrite from './components/PostWrite';
 import PostView from './components/PostView';
@@ -39,6 +40,9 @@ class App extends Component{
       modifyPostId : -1
     });
   }
+  getDateNow = () => {
+    return moment().format('YYYY-MM-DD [/] h:mm:ss A');
+  }
   handlePostClose = (e) => { // 글쓰기 / 글보기 닫음
     e.preventDefault();
     this.initState();
@@ -52,6 +56,7 @@ class App extends Component{
   handlePostUpload = (e) => { // 포스팅
     e.preventDefault();
     const {title, content, todoContent} = this.state.writeForm;
+    let date = this.getDateNow();
 
     if(title === ''){
       alert('제목을 입력해주세요.');
@@ -67,8 +72,10 @@ class App extends Component{
     this.setState({
       posts : this.state.posts.concat({
         postId : this.postId++,
-        title : title,
-        content : content,
+        title,
+        content,
+        date,
+        modifyDate : undefined,
         todoContent : [...todoContent],
         performRatio : 0
       })
@@ -114,6 +121,7 @@ class App extends Component{
   handlePostModifyUpload = (e) => { // 글 수정 완료
     e.preventDefault();
     const {title, content, todoContent} = this.state.writeForm;
+    let date = this.getDateNow();
     let cnt = 0;
 
     this.setState({
@@ -132,6 +140,7 @@ class App extends Component{
                   return {...todo};
                 }
               ),
+              modifyDate : date,
               performRatio : ((cnt / todoContent.length) * 100).toFixed(0)
             };
           }else{
@@ -238,9 +247,9 @@ class App extends Component{
       <div className="App">
         <header><h1>Todo</h1></header>
         <PostList 
-          posts={posts} 
-          onPostStart={handlePostStart} 
-          onPostRemove={handlePostRemove} 
+          posts={posts}
+          onPostStart={handlePostStart}
+          onPostRemove={handlePostRemove}
           onPostView={handlePostView}
         />
         <div className={`popup_wrap ${isPopup ? 'on' : ''}`}>

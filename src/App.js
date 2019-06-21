@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import moment from 'moment';
 import PostList from './components/PostList';
 import PostWrite from './components/PostWrite';
 import PostView from './components/PostView';
@@ -53,6 +54,16 @@ class App extends Component{
     e.preventDefault();
     const {title, content, todoContent} = this.state.writeForm;
 
+    if(title === ''){
+      alert('제목을 입력해주세요.');
+      return;
+    }
+
+    if(content === '' && todoContent.length === 0){
+      alert('내용 또는 TodoList 항목을 추가해주세요.');
+      return;
+    }
+
     this.initState();
     this.setState({
       posts : this.state.posts.concat({
@@ -89,8 +100,7 @@ class App extends Component{
       viewPostId : postId
     });
   }
-  handlePostModify = (obj, postId) => {
-    console.log(postId);
+  handlePostModify = (obj, postId) => { // 글 수정 시작
     this.initState();
     this.setState({
       isPopup : true,
@@ -102,7 +112,7 @@ class App extends Component{
       modifyPostId : postId
     });
   }
-  handlePostModifyUpload = (e) => {
+  handlePostModifyUpload = (e) => { // 글 수정 완료
     e.preventDefault();
     const {title, content, todoContent} = this.state.writeForm;
     let cnt = 0;
@@ -123,7 +133,7 @@ class App extends Component{
                   return {...todo};
                 }
               ),
-              performRatio : ((cnt / todoContent.length) * 100).toFixed(1)
+              performRatio : ((cnt / todoContent.length) * 100).toFixed(0)
             };
           }else{
             return {...post};
@@ -137,7 +147,7 @@ class App extends Component{
     const {writeForm} = this.state;
     const {todoTitle, todoContent} = writeForm;
     const todoId = todoContent.length > 0 ? (todoContent[todoContent.length - 1].todoId) + 1 : 0;
-    console.log(todoId);
+    
     if(todoTitle === ''){
       alert('항목을 입력하세요.');
       return;
@@ -191,7 +201,7 @@ class App extends Component{
                   }
                 }
               ),
-              performRatio : ((cnt / post.todoContent.length) * 100).toFixed(1)
+              performRatio : ((cnt / post.todoContent.length) * 100).toFixed(0)
             }
           }else{
             return {...post};

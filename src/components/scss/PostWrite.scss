@@ -1,3 +1,5 @@
+@import '~open-color/open-color';
+
 .PostWrite{
   box-sizing:border-box;
   position:absolute;
@@ -17,7 +19,7 @@
       margin-bottom:20px;
       width:100%;
       height:40px;
-      border:1px solid #dee2e6;
+      border:1px solid $oc-gray-3;
     }
     .post_content{
       box-sizing:border-box;
@@ -26,7 +28,7 @@
       width:100%;
       height:300px;
       resize:none;
-      border:1px solid #dee2e6;
+      border:1px solid $oc-gray-3;
     }
     .todo_title_area{
       width:100%;
@@ -37,7 +39,7 @@
         padding:0.5rem;
         width:calc(100% - 60px);
         height:100%;
-        border:1px solid #dee2e6;
+        border:1px solid $oc-gray-3;
         border-right:none;
         vertical-align:top;
       }
@@ -45,7 +47,7 @@
         display:inline-block;
         width:60px;
         height:100%;
-        background:#66a80f;
+        background:$oc-lime-8;
         border:none;
         color:#fff;
         vertical-align:top;
@@ -61,7 +63,7 @@
           background:none;
         }
         &:nth-child(odd){
-          background:#f8f9fa;
+          background:$oc-gray-1;
         }
       }
     }

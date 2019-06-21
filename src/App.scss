@@ -1,9 +1,9 @@
 @import '~open-color/open-color';
 
 html{
-  font-size:16px;
   padding:0;
   margin:0;
+  font-size:16px;
   background:$oc-gray-1;
 }
 
@@ -11,7 +11,9 @@ html{
   margin:0; 
   padding:0;
   font-family:sans-serif;
-  font-size:1rem;
+  word-break:break-word;
+  letter-spacing:-1px;
+  font-size:inherit;
 }
 
 .App{
@@ -54,7 +56,7 @@ html{
       margin-left:0.75rem;
     }
     &.write{
-      background:$oc-yellow-7;
+      background:$oc-orange-7;
     }
     &.remove{
       background:$oc-red-7;

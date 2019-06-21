@@ -17,12 +17,12 @@ class PostList extends Component{
           <PostContent 
             onPostRemove={onPostRemove}
             onPostView={onPostView}
-            key={post.postId}
-            postId={post.postId}
-            performRatio={post.performRatio}
             title={post.title} 
             content={post.content}
             todoContent={post.todoContent}
+            key={post.postId}
+            postId={post.postId}
+            performRatio={post.performRatio}
           />
         );
       }

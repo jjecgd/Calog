@@ -29,16 +29,17 @@ class PostContent extends Component{
     const {
       title, 
       content,
+      todoContent,
       performRatio
     } = this.props;
     
     return (
       <li className="PostContent" onClick={handlePostView}>
         <div>
-          <b>{title}</b>
+          <b className="title">{title}</b>
           <hr/>
-          <p>{content}</p>
-          <p>수행률 {performRatio}%의 Todo list</p>
+          <p className="content">{content}</p>
+          {todoContent.length > 0 ? <p className="perform_ratio">수행률 <span>{performRatio}%</span>의 Todo list</p> : null}
         </div>
       </li>
     );

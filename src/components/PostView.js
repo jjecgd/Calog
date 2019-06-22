@@ -3,6 +3,9 @@ import './scss/PostView.scss';
 import TodoItem from './TodoItem';
 
 class PostView extends Component{
+  shouldComponentUpdate(nextProps, nextState){
+    return nextProps.post !== this.props.post;
+  }
   handlePostRemove = (e) => {
     const { 
       onPostRemove,
@@ -40,25 +43,49 @@ class PostView extends Component{
     const {
       title,
       content,
-      todoContent
+      todoContent,
+      date,
+      modifyDate
     } = post;
-
-    let todoList = undefined;
-
-    todoList = todoContent.map(
-      (item) => {
-        return (<TodoItem key={item.todoId} index={item.todoId} isOnlyView={true} isPerform={item.isPerform} onTodoRemove={onTodoRemove} onTodoToggle={onTodoToggle}>{item.todo}</TodoItem>);
+    const todoList = todoContent.map(
+      (todo) => {
+        return (<TodoItem key={todo.todoId} todoId={todo.todoId} isOnlyView={true} isPerform={todo.isPerform} onTodoRemove={onTodoRemove} onTodoToggle={onTodoToggle} todo={todo}>{todo.todo}</TodoItem>);
       }
     );
-
+    const count = todoContent.reduce((a, todo) => {
+      if(todo.isPerform) return ++a;
+      else return a;
+    }, 0);
+    const performRatio = ((count / todoContent.length) * 100).toFixed(0);
+    
     return(
       <div className="PostView">
-        <h2 className="title_area">{title}</h2>
-        <p className="content_area">{content}</p>
-        
-        <ul className="todo_content_area">
-          {todoList}
-        </ul>
+        <div className="view_area">
+          <h2 className="title_area">{title}</h2>
+          <hr/>
+          <p className="date">작성일 : {date}</p>
+          {modifyDate ? <p className="date">수정일 : {modifyDate}</p> : null}
+
+          {
+            content 
+            ? <div>
+                <p className="content_area">{content}</p>
+                <hr/>
+              </div>
+            : null
+          }
+            
+          {
+            todoContent.length === 0
+            ? null
+            : <div>
+                <p className="perform_ratio">오늘 할 일의 <span>{performRatio}%</span>를 수행하셨군요!</p>
+                <ul className="todo_content_area">
+                  {todoList}
+                </ul>
+              </div>
+          }
+        </div>
 
         <div className="btn_group">
           <button className="btn remove" onClick={handlePostRemove}>삭제</button>

@@ -2,6 +2,9 @@ import React, {Component} from 'react';
 import './scss/PostContent.scss';
 
 class PostContent extends Component{
+  shouldComponentUpdate(nextProps, nextState){
+    return nextProps.post !== this.props.post;
+  }
   handlePostRemove = (e) => {
     const {
       postId, 
@@ -11,7 +14,6 @@ class PostContent extends Component{
     e.stopPropagation();
     onPostRemove(postId);
   }
-
   handlePostView = (e) => {
     const {
       postId,
@@ -21,7 +23,6 @@ class PostContent extends Component{
     e.stopPropagation();
     onPostView(postId);
   }
-
   render(){
     const {
       handlePostView
@@ -32,9 +33,12 @@ class PostContent extends Component{
       todoContent,
       date,
       modifyDate,
-      performRatio
     } = this.props;
-    console.log(modifyDate);
+    const count = todoContent.reduce((a, todo) => {
+      if(todo.isPerform) return ++a;
+      else return a;
+    }, 0);
+    const performRatio = ((count / todoContent.length) * 100).toFixed(0);
 
     return (
       <li className="PostContent" onClick={handlePostView}>
@@ -42,6 +46,7 @@ class PostContent extends Component{
           <b className="title">{title}</b>
           <hr/>
           <p className="upload_date">{date}</p>
+          {modifyDate ? <p className="upload_date">수정 : {modifyDate}</p> : null}
           <p className="content">{content}</p>
           {todoContent.length > 0 ? <p className="perform_ratio">수행률 <span>{performRatio}%</span>의 Todo list</p> : null}
         </div>

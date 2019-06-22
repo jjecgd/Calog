@@ -3,6 +3,9 @@ import './scss/PostWrite.scss';
 import TodoItem from './TodoItem';
 
 class PostWrite extends Component{
+  shouldComponentUpdate(nextProps, nextState){
+    return nextProps.writeForm !== this.props.writeForm;
+  }
   handleTodoAdd = (e) => {
     const {
       onTodoAdd,
@@ -15,7 +18,6 @@ class PostWrite extends Component{
     e.preventDefault();
     onTodoAdd(todoTitle);
   }
-
   handleKeyPress = (e) => {
     const {
       onTodoAdd,
@@ -30,7 +32,6 @@ class PostWrite extends Component{
       onTodoAdd(todoTitle);
     }
   }
-
   render(){
     const {
       handleTodoAdd,
@@ -41,7 +42,7 @@ class PostWrite extends Component{
       onPostWrite,
       onPostUpload,
       onTodoRemove,
-      isModify,
+      popupMode,
       writeForm
     } = this.props;
     const {
@@ -52,7 +53,7 @@ class PostWrite extends Component{
     } = writeForm;
     const todoList = todoContent.map(
       (item) => {
-        return (<TodoItem key={item.todoId} index={item.todoId} onTodoRemove={onTodoRemove}>{item.todo}</TodoItem>);
+        return (<TodoItem key={item.todoId} todoId={item.todoId} onTodoRemove={onTodoRemove}>{item.todo}</TodoItem>);
       }
     );
 
@@ -75,7 +76,7 @@ class PostWrite extends Component{
 
         <div className="btn_group">
           <button className="btn cancel" onClick={onPostClose}>취소</button>
-          <button className="btn write" onClick={onPostUpload}>{isModify ? '수정완료' : '게시'}</button>
+          <button className="btn write" onClick={onPostUpload}>{popupMode === 'modify' ? '수정완료' : '게시'}</button>
         </div>
       </form>
     );

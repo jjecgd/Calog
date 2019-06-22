@@ -3,6 +3,9 @@ import PostContent from './PostContent';
 import './scss/PostList.scss';
 
 class PostList extends Component{
+  shouldComponentUpdate(nextProps, nextState){
+    return nextProps.posts !== this.props.posts;
+  }
   render(){
     const {
       onPostStart, 
@@ -10,7 +13,6 @@ class PostList extends Component{
       onPostView,
       posts
     } = this.props;
-    
     const postList = posts.map(
       (post) => {
         return (
@@ -24,11 +26,12 @@ class PostList extends Component{
             modifyDate={post.modifyDate}
             key={post.postId}
             postId={post.postId}
-            performRatio={post.performRatio}
+            post={post}
           />
         );
       }
     );
+    
     return (
       <section className="PostList">
         <ul className="list_area">

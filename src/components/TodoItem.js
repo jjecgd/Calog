@@ -36,7 +36,7 @@ class TodoItem extends Component{
       isOnlyView,
       isPerform
     } = this.props;
-    console.log(this.props.todoId);
+
     return (
       <li className={`TodoItem ${(isPerform) ? 'perform' : 'notPerform'}`} onClick={handleTodoToggle}>
         <p>{this.props.children}</p>

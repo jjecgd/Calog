@@ -16,7 +16,7 @@ const bulkPosts = () => {
       title : `title ${i}`,
       content : `content ${i}`,
       todoContent : [],
-      date : App.getDateNow(),
+      date : moment().format('YYYY-MM-DD [/] h:mm:ss A'),
       modifyDate : undefined
     });
     for(let y = 0; y < 5; y++){
@@ -71,7 +71,7 @@ class App extends Component{
       modifyPostId : -1
     });
   }
-  static getDateNow = () => { // 현재 날짜 / 시각 받아오기
+  getDateNow = () => { // 현재 날짜 / 시각 받아오기
     return moment().format('YYYY-MM-DD [/] h:mm:ss A');
   }
   handlePostClose = (e) => { // 글쓰기 / 글보기 닫음

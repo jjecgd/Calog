@@ -8,7 +8,7 @@ import PostView from './components/PostView';
 
 import './App.scss';
 
-/*const bigTest = () => {
+const bulkPosts = () => {
   const bigArray = [];
   for(let i = 0; i < 3650; i++){
     bigArray.push({
@@ -28,7 +28,7 @@ import './App.scss';
     }
   }
   return bigArray;
-}*/
+}
 
 /* state.posts의 구조
 posts -- postId
@@ -52,7 +52,7 @@ class App extends Component{
     viewPostId : -1,
     modifyPostIndex : -1,
     modifyPostId : -1,
-    posts : bigTest()
+    posts : bulkPosts()
   }
   postId = this.state.posts.length
 

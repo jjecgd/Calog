@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import moment from 'moment';
 import produce from 'immer';
+import axios from 'axios';
 
 import PostList from './components/PostList';
 import PostWrite from './components/PostWrite';
@@ -52,10 +53,15 @@ class App extends Component{
     viewPostId : -1,
     modifyPostIndex : -1,
     modifyPostId : -1,
-    posts : bulkPosts()
+    posts : [],
+    username : ''
   }
   postId = this.state.posts.length
-
+  componentDidMount(){
+    fetch('/api/getTest')
+    .then(res => res.json())
+    .then(user => console.log(user.test));
+  }
   initState = () => { // 글쓰기 취소, 포스팅 시에 State 초기화
     this.setState({
       popupMode : '',
@@ -97,7 +103,7 @@ class App extends Component{
       alert('내용 또는 TodoList 항목을 추가해주세요.');
       return;
     }
-    this.initState();
+    /*this.initState();
     this.setState({
       posts : posts.concat({
         postId : this.postId++,
@@ -107,7 +113,10 @@ class App extends Component{
         date,
         modifyDate : undefined,
       })
-    });
+    });*/
+
+    axios.post('/api/post/postupload', {title, content, todoContent})
+      .then( response => {console.log(response)} );
   }
   handlePostRemove = (postId) => { // 포스트 삭제
     const {posts} = this.state;
@@ -166,11 +175,11 @@ class App extends Component{
 
     this.setState(
       produce(draft => {
-      const targetPost = draft.posts[modifyPostIndex];
-      targetPost.title = title;
-      targetPost.content = content;
-      targetPost.todoContent = todoContent;
-      targetPost.modifyDate = this.getDateNow();
+        const targetPost = draft.posts[modifyPostIndex];
+        targetPost.title = title;
+        targetPost.content = content;
+        targetPost.todoContent = todoContent;
+        targetPost.modifyDate = this.getDateNow();
       })
     );
     this.initState();
@@ -238,7 +247,7 @@ class App extends Component{
 
     return (
       <div className="App">
-        <header><h1>Todo</h1></header>
+        <header><h1>'s Todo</h1></header>
         <PostList 
           posts={posts}
           onPostStart={handlePostStart}

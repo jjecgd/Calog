@@ -38,7 +38,8 @@ class PostView extends Component{
       onPostClose,
       onTodoRemove,
       onTodoToggle,
-      post
+      post,
+      viewPostId
     } = this.props;
     const {
       title,
@@ -49,7 +50,7 @@ class PostView extends Component{
     } = post;
     const todoList = todoContent.map(
       (todo) => {
-        return (<TodoItem key={todo.todoId} todoId={todo.todoId} isOnlyView={true} isPerform={todo.isPerform} onTodoRemove={onTodoRemove} onTodoToggle={onTodoToggle} todo={todo}>{todo.todo}</TodoItem>);
+        return (<TodoItem key={todo.todoId} todoId={todo.todoId} post={post} viewPostId={viewPostId} isOnlyView={true} isPerform={todo.isPerform} onTodoRemove={onTodoRemove} onTodoToggle={onTodoToggle} todo={todo}>{todo.todo}</TodoItem>);
       }
     );
     const count = todoContent.reduce((a, todo) => {

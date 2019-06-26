@@ -7,21 +7,21 @@ class PostContent extends Component{
   }
   handlePostRemove = (e) => {
     const {
-      postId, 
+      _id, 
       onPostRemove
     } = this.props;
 
     e.stopPropagation();
-    onPostRemove(postId);
+    onPostRemove(_id);
   }
   handlePostView = (e) => {
     const {
-      postId,
+      _id,
       onPostView
     } = this.props;
 
     e.stopPropagation();
-    onPostView(postId);
+    onPostView(_id);
   }
   render(){
     const {

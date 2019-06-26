@@ -24,8 +24,8 @@ class PostList extends Component{
             todoContent={post.todoContent}
             date={post.date}
             modifyDate={post.modifyDate}
-            key={post.postId}
-            postId={post.postId}
+            key={post._id}
+            _id={post._id}
             post={post}
           />
         );

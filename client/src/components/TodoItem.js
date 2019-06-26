@@ -1,9 +1,22 @@
 import React, {Component} from 'react';
+import axios from 'axios';
 import './scss/TodoItem.scss';
 
 class TodoItem extends Component{
   shouldComponentUpdate(nextProps, nextState){
+    if(nextProps.isPerform !== this.props.isPerform){
+      const post = {
+        todoContent : nextProps.post.todoContent
+      }
+      axios.put('/api/post/checkTodo/' + nextProps.viewPostId, post)
+        .then(res => {
+          console.log(res);
+        }); 
+    }
     return nextProps.todo !== this.props.todo;
+  }
+  componentDidMount(){
+    
   }
   handleTodoRemove = (e) => {
     const {

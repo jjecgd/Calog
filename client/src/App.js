@@ -9,28 +9,6 @@ import PostView from './components/PostView';
 
 import './App.scss';
 
-const bulkPosts = () => {
-  const bigArray = [];
-  for(let i = 0; i < 3650; i++){
-    bigArray.push({
-      postId : i,
-      title : `title ${i}`,
-      content : `content ${i}`,
-      todoContent : [],
-      date : moment().format('YYYY-MM-DD [/] h:mm:ss A'),
-      modifyDate : undefined
-    });
-    for(let y = 0; y < 5; y++){
-      bigArray[i].todoContent.push({
-        todoId : y,
-        todo : `할일 ${y}`,
-        isPerform : false
-      });
-    }
-  }
-  return bigArray;
-}
-
 /* state.posts의 구조
 posts -- postId
        - title
@@ -56,11 +34,13 @@ class App extends Component{
     posts : [],
     username : ''
   }
-  postId = this.state.posts.length
+
   componentDidMount(){
-    fetch('/api/getTest')
-    .then(res => res.json())
-    .then(user => console.log(user.test));
+    this.getApi();
+  }
+  async getApi(){
+    let {data:posts} = await axios.get('/api/post/');
+    this.setState({posts});
   }
   initState = () => { // 글쓰기 취소, 포스팅 시에 State 초기화
     this.setState({
@@ -76,6 +56,7 @@ class App extends Component{
       modifyPostIndex : -1,
       modifyPostId : -1
     });
+    this.getApi();
   }
   getDateNow = () => { // 현재 날짜 / 시각 받아오기
     return moment().format('YYYY-MM-DD [/] h:mm:ss A');
@@ -93,7 +74,15 @@ class App extends Component{
     e.preventDefault();
     const {posts} = this.state;
     const {title, content, todoContent} = this.state.writeForm;
-    let date = this.getDateNow();
+    const date = this.getDateNow();
+
+    const post = {
+      title : title,
+      content : content,
+      todoContent : todoContent,
+      date : date,
+      modifyDate : undefined
+    }
 
     if(title === ''){
       alert('제목을 입력해주세요.');
@@ -103,28 +92,18 @@ class App extends Component{
       alert('내용 또는 TodoList 항목을 추가해주세요.');
       return;
     }
-    /*this.initState();
-    this.setState({
-      posts : posts.concat({
-        postId : this.postId++,
-        title,
-        content,
-        todoContent,
-        date,
-        modifyDate : undefined,
-      })
-    });*/
-
-    axios.post('/api/post/postupload', {title, content, todoContent})
-      .then( response => {console.log(response)} );
+    axios.post('/api/post/upload', post)
+      .then(res => {
+        console.log(res);
+        this.initState();
+      });
   }
-  handlePostRemove = (postId) => { // 포스트 삭제
-    const {posts} = this.state;
-
-    this.initState();
-    this.setState({
-      posts : posts.filter((post) => post.postId !== postId)
-    });
+  handlePostRemove = (_id) => { // 포스트 삭제
+    axios.delete('/api/post/delete/' + _id)
+      .then(res => {
+        console.log(res);
+        this.initState();
+      });
   }
   handlePostWrite = (e) => { // 글쓰기 폼에서 입력
     const {writeForm} = this.state;
@@ -136,16 +115,16 @@ class App extends Component{
       }
     });
   }
-  handlePostView = (postId) => { // 글 보기
+  handlePostView = (_id) => { // 글 보기
     const {posts} = this.state;
 
     this.setState({
       popupMode : 'view',
-      viewPostIndex : posts.findIndex((post) => post.postId === postId),
-      viewPostId : postId
+      viewPostIndex : posts.findIndex((post) => post._id === _id),
+      viewPostId : _id
     });
   }
-  handlePostModify = (before, postId) => { // 글 수정 시작
+  handlePostModify = (before, _id) => { // 글 수정 시작
     const {writeForm, posts} = this.state;
     
     this.initState();
@@ -155,13 +134,13 @@ class App extends Component{
         ...writeForm,
         ...before
       },
-      modifyPostIndex : posts.findIndex(post => post.postId === postId),
-      modifyPostId : postId
+      modifyPostIndex : posts.findIndex(post => post._id === _id),
+      modifyPostId : _id
     });
   }
   handlePostModifyUpload = (e) => { // 글 수정 완료
     e.preventDefault();
-    const {modifyPostIndex} = this.state;
+    const {modifyPostId} = this.state;
     const {title, content, todoContent} = this.state.writeForm;
 
     if(title === ''){
@@ -172,17 +151,17 @@ class App extends Component{
       alert('내용 또는 TodoList 항목을 추가해주세요.');
       return;
     }
-
-    this.setState(
-      produce(draft => {
-        const targetPost = draft.posts[modifyPostIndex];
-        targetPost.title = title;
-        targetPost.content = content;
-        targetPost.todoContent = todoContent;
-        targetPost.modifyDate = this.getDateNow();
-      })
-    );
-    this.initState();
+    const post = {
+      title : title,
+      content : content,
+      todoContent : todoContent,
+      modifyDate : this.getDateNow()
+    }
+    axios.put('/api/post/modify/' + modifyPostId, post)
+      .then(res => {
+        console.log(res);
+        this.initState();
+      });
   }
   handleTodoAdd = (todo) => { // 투두아이템 추가
     const {writeForm} = this.state;
@@ -220,11 +199,10 @@ class App extends Component{
         const targetTodo = targetPost.todoContent[targetTodoIndex];
         targetTodo.isPerform = !targetTodo.isPerform;
       })
-    );
+    );    
   }
   render(){
     const {
-      performRatio,
       handlePostClose,
       handlePostStart,
       handlePostUpload,
@@ -278,7 +256,6 @@ class App extends Component{
                     onTodoToggle={handleTodoToggle}
                     viewPostId={viewPostId}
                     post={posts[viewPostIndex]}
-                    performRatio={performRatio}
                   />
                 );
               }else if(popupMode === 'modify'){

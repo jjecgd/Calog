@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "scripts": {
     "client": "cd client && yarn start",
-    "server": "nodemon server/server.js",
+    "server": "node server/server.js",
     "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "express-session": "^1.16.2",
     "mongoose": "^5.6.1"
   },
   "devDependencies": {

@@ -1,23 +1,23 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const Post = require('../models/post');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  Post.find().exec((err, posts) => {
+  Post.find().sort({"_id" : -1}).exec((err, posts) => {
     if(err) throw err;
     res.json(posts);
   });
 });
 
 router.post('/upload', (req, res) => {
-  const post = new Post();
-  post.title = req.body.title;
-  post.content = req.body.content;
-  post.todoContent = req.body.todoContent;
-  post.date = req.body.date;
-  post.modifyDate = undefined;
+  const post = new Post({
+    title : req.body.title,
+    content : req.body.content,
+    todoContent : req.body.todoContent,
+    date : req.body.date,
+    modifyDate : undefined
+  });
 
   post.save(err => {
     if(err) throw err;

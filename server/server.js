@@ -8,7 +8,7 @@ const api = require('./routes');
 const db = mongoose.connection;
 db.on('error', console.error);
 db.once('open', () => console.log('CONNECTED TO MONGOD SERVER'));
-mongoose.connect('mongodb://localhost/posts');
+mongoose.connect('mongodb://localhost/todolist');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));

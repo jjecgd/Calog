@@ -1,10 +1,11 @@
 {
-  "name": "TodoList",
+  "name": "Calog",
   "version": "1.0.0",
   "scripts": {
     "client": "cd client && yarn start",
-    "server": "node server/server.js",
-    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
+    "server": "nodemon server/server.js",
+    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
+    "dev2": "concurrently --kill-others-on-fail \"node server/server.js\" \"yarn client\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

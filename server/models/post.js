@@ -8,6 +8,7 @@ const todoContent = new Schema({
   isPerform: Boolean
 });
 const Post = new Schema({
+  writerId: String,
   title: String,
   content: String,
   todoContent: [todoContent],

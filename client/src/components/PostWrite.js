@@ -103,7 +103,7 @@ class PostWrite extends Component {
     const { handleTodoAdd, handleKeyPress } = this;
     const {
       onPostClose,
-      onPostWrite,
+      onChange,
       onPostUpload,
       onTodoRemove,
       popupMode,
@@ -129,7 +129,7 @@ class PostWrite extends Component {
             name="title"
             className="post_title"
             value={title}
-            onChange={onPostWrite}
+            onChange={onChange}
             placeholder="제목을 입력하세요."
           />
           <textarea
@@ -137,7 +137,7 @@ class PostWrite extends Component {
             className="post_content"
             type="text"
             value={content}
-            onChange={onPostWrite}
+            onChange={onChange}
             placeholder="내용을 입력하세요."
           ></textarea>
 
@@ -145,7 +145,7 @@ class PostWrite extends Component {
             <input
               name="todoTitle"
               value={todoTitle}
-              onChange={onPostWrite}
+              onChange={onChange}
               onKeyPress={handleKeyPress}
               placeholder="항목을 입력하세요."
             />

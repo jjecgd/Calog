@@ -13,6 +13,11 @@ const GlobalStyles = createGlobalStyle`
     font-size: inherit;
   }
 
+  a{
+    text-decoration:none;
+    color:inherit;
+  }
+
   html{
     padding: 0;
     margin: 0;
@@ -25,13 +30,16 @@ const GlobalStyles = createGlobalStyle`
   }
 
   button{
-    padding: 0.25rem 0.75rem;
+    padding:0 0.7rem;
     outline: none;
     border: none;
+    line-height: 2.2rem;
     color: #fff;
     cursor: pointer;
     background: #000;
-
+    &>a{
+      display:block;
+    }
     &.orange{
       background: #f59f00;
     }
@@ -46,6 +54,10 @@ const GlobalStyles = createGlobalStyle`
     }
     &.green{
       background: #37b24d;
+    }
+    &.gray{
+      background: #495057;
+      cursor:default;
     }
   }
 `;

@@ -26,7 +26,7 @@ const Item = styled.li`
     top: 0;
     right: 0;
     vertical-align: top;
-    width: 60px;
+    width: 80px;
     height: 100%;
     background: #f03e3e;
     color: #fff;
@@ -48,7 +48,7 @@ class TodoItem extends Component {
         todoContent: nextProps.post.todoContent
       };
       axios
-        .put('/api/post/checkTodo/' + nextProps.viewPostId, post)
+        .put(`/api/post/checkTodo/${nextProps.viewPostId}`, post)
         .then(res => {});
     }
     return nextProps.todo !== this.props.todo;

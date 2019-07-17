@@ -37,6 +37,7 @@ class JoinFormContainer extends Component {
   };
   handleSubmit = e => {
     const { id, email, password, nickname } = this.props;
+    const { history } = this.props;
     const userForm = {
       id: id.value,
       email: email.value,
@@ -49,7 +50,8 @@ class JoinFormContainer extends Component {
     axios
       .post('/api/account/join/', userForm)
       .then(res => {
-        //console.log(res);
+        alert('가입이 완료되었습니다.');
+        history.push('/login');
       })
       .catch(err => {
         console.log(err);

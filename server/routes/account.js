@@ -15,7 +15,7 @@ router.use(
 
 router.get('/getSession', (req, res) => {
   // 세션 확인
-  res.json({ info: req.session.loginInfo });
+  res.json({ ...req.session.loginInfo });
 });
 
 router.post('/login', (req, res) => {
@@ -30,7 +30,7 @@ router.post('/login', (req, res) => {
       nickname: account.nickname
     };
     return res.json({
-      info: session.loginInfo
+      ...session.loginInfo
     });
   });
 });

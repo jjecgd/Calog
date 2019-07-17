@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Redirect, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 import GlobalStyles from './components/GlobalStyles';
-import LoginFormContainer from './containers/LoginFormContainer';
 import JoinFormContainer from './containers/JoinFormContainer';
+import LoginFormContainer from './containers/LoginFormContainer';
 import CalogContainer from './containers/CalogContainer';
+import CalogerListContainer from './containers/CaloggersContainer';
 
 import * as loginActions from './store/modules/login';
 
@@ -23,39 +23,27 @@ posts -- postId
 
 class App extends Component {
   componentDidMount() {
-    this.getSession();
-  }
-  getSession() {
     const { loginActions } = this.props;
-
-    axios.get('/api/account/getSession/').then(res => {
-      if (res.data.info) {
-        loginActions.login(res.data.info.id, res.data.info.nickname);
-      }
-    });
+    loginActions.loading();
   }
   render() {
-    const { userId, isLogin } = this.props; // for Redux
-
     return (
       <div>
         <GlobalStyles />
-        {!isLogin && userId === '' ? (
-          <Redirect to="/login" />
-        ) : (
-          <Redirect to={`/calog/${userId}`} />
-        )}
-        <Route path="/calog/:id" component={CalogContainer} exact={true} />
+        <Route path="/" component={null} exact />
         <Route path="/login" component={LoginFormContainer} />
         <Route path="/join" component={JoinFormContainer} />
+        <Route path="/calogs/:id" component={CalogContainer} />
+        <Route path="/caloggers" component={CalogerListContainer} />
       </div>
     );
   }
 }
 
-const mapStateToProps = ({ login }) => ({
-  isLogin: login.isLogin,
-  userId: login.userId
+const mapStateToProps = ({ login, calog }) => ({
+  status: login.status,
+  userId: login.userId,
+  showCalogId: calog.showCalogId
 });
 
 const mapDispatchToProps = dispatch => ({

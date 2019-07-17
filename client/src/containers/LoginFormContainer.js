@@ -8,11 +8,10 @@ import LoginForm from '../components/LoginForm';
 class LoginFormContainer extends Component {
   handleChange = e => {
     const { loginActions } = this.props;
-
     loginActions.changeInput(e.target.name, e.target.value);
   };
   handleLogin = e => {
-    const { id, password, loginActions } = this.props;
+    const { history, id, password, loginActions } = this.props;
     const userLoginForm = {
       id,
       password
@@ -22,7 +21,10 @@ class LoginFormContainer extends Component {
     axios
       .post('/api/account/login/', userLoginForm)
       .then(res => {
-        loginActions.login(res.data.info.id, res.data.info.nickname);
+        window.localStorage.setItem('id', res.data.id);
+        window.localStorage.setItem('nickname', res.data.nickname);
+        loginActions.loading();
+        history.push(`/calogs/${res.data.id}`);
       })
       .catch(err => {
         console.log(err);

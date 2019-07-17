@@ -53,7 +53,6 @@ class TodoItem extends Component {
     }
     return nextProps.todo !== this.props.todo;
   }
-  componentDidMount() {}
   handleTodoRemove = e => {
     const { todoId, onTodoRemove } = this.props;
 

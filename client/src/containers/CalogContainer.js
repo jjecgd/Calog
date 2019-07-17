@@ -47,6 +47,7 @@ class CalogContainer extends Component {
   componentDidMount() {
     this.getPosts();
   }
+
   getPosts() {
     const { calogActions } = this.props;
 
@@ -65,10 +66,12 @@ class CalogContainer extends Component {
     this.getPosts();
   };
   handleLogout = () => {
-    const { loginActions, calogActions } = this.props;
+    const { loginActions, calogActions, history } = this.props;
     axios.post('/api/account/logout').then(res => {
       loginActions.logout();
       calogActions.logout();
+      window.localStorage.clear();
+      history.push('/login');
     });
   };
   handlePostClose = e => {
@@ -210,6 +213,7 @@ class CalogContainer extends Component {
       viewPostId,
       posts
     } = this.props;
+
     return (
       <div>
         <Header>

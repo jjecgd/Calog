@@ -54,6 +54,7 @@ class JoinForm extends Component {
       password.isValid &&
       passwordConfirm.isValid &&
       nickname.isValid;
+
     return (
       <Form
         onSubmit={

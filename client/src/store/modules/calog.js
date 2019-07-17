@@ -11,6 +11,7 @@ const POST_MODIFY = 'calog/POST_MODIFY';
 const TODO_ADD = 'calog/TODO_ADD';
 const TODO_REMOVE = 'calog/TODO_REMOVE';
 const TODO_TOGGLE = 'calog/TODO_TOGGLE';
+const VISIT_CALOG = 'calog/VISIT_CALOG';
 
 export const logout = createAction(LOGOUT);
 export const initialize = createAction(INITIALIZE);
@@ -43,6 +44,9 @@ export const todoToggle = createAction(TODO_TOGGLE, (postIndex, todoId) => ({
   postIndex,
   todoId
 }));
+export const visitCalog = createAction(VISIT_CALOG, showCalogId => ({
+  showCalogId
+}));
 
 const initialState = {
   popupMode: '',
@@ -56,6 +60,7 @@ const initialState = {
   viewPostId: -1,
   modifyPostIndex: -1,
   modifyPostId: -1,
+  showCalogId: '',
   posts: []
 };
 
@@ -139,6 +144,10 @@ export default handleActions(
         );
         const targetTodo = targetPost.todoContent[targetTodoIndex];
         targetTodo.isPerform = !targetTodo.isPerform;
+      }),
+    [VISIT_CALOG]: (state, action) =>
+      produce(state, draft => {
+        draft.showCalogId = action.payload.showCalogId;
       })
   },
   initialState

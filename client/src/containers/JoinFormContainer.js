@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import axios from 'axios';
-import { getDateNow } from '../utils/utils';
+import { getDateNow } from '../utils/moment';
 
 import * as joinActions from '../store/modules/join';
 import JoinForm from '../components/JoinForm';
@@ -36,8 +36,7 @@ class JoinFormContainer extends Component {
       });
   };
   handleSubmit = e => {
-    const { id, email, password, nickname } = this.props;
-    const { history } = this.props;
+    const { joinActions, id, email, password, nickname, history } = this.props;
     const userForm = {
       id: id.value,
       email: email.value,
@@ -52,13 +51,21 @@ class JoinFormContainer extends Component {
       .then(res => {
         alert('가입이 완료되었습니다.');
         history.push('/login');
+        joinActions.initialize();
       })
       .catch(err => {
         console.log(err);
       });
   };
+  handleCancel = e => {
+    const { joinActions, history } = this.props;
+
+    e.preventDefault();
+    joinActions.initialize();
+    history.push('/login');
+  };
   render() {
-    const { handleChange, handleBlur, handleSubmit } = this;
+    const { handleChange, handleBlur, handleSubmit, handleCancel } = this;
     const {
       id,
       password,
@@ -78,6 +85,7 @@ class JoinFormContainer extends Component {
         onChange={handleChange}
         onBlur={handleBlur}
         onSubmit={handleSubmit}
+        onCancel={handleCancel}
       />
     );
   }

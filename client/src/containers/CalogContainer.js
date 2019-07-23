@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
+import Calendar from 'react-calendar/dist/entry.nostyle';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getDateNow } from '../utils/utils';
+import { getDateNow, getFormatNow } from '../utils/moment';
 
-import PostList from '../components/PostList';
+import Calog from '../components/Calog';
 import PostWrite from '../components/PostWrite';
+import PostList from '../components/PostList';
 import PostView from '../components/PostView';
 
 import * as loginActions from '../store/modules/login';
@@ -31,13 +33,14 @@ const Header = styled.header`
 `;
 
 const Popup = styled.div`
+  z-index: 2;
   position: fixed;
   display: none;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: none;
   &.on {
     display: block;
   }
@@ -45,25 +48,38 @@ const Popup = styled.div`
 
 class CalogContainer extends Component {
   componentDidMount() {
-    this.getPosts();
+    const { calogActions, match, currentDate } = this.props;
+    calogActions.visitCalog(match.params.id, currentDate);
   }
+  componentDidUpdate(prevProps, prevState) {
+    const { calogActions, currentDate, showCalogId } = this.props;
 
-  getPosts() {
-    const { calogActions } = this.props;
-
-    axios
-      .get(`/api/post/${this.props.match.params.id}`)
-      .then(res => {
-        calogActions.setPosts(res.data);
-      })
-      .catch(err => console.log(err));
+    if (
+      (currentDate !== prevProps.currentDate ||
+        showCalogId !== prevProps.showCalogId) &&
+      showCalogId !== ''
+    ) {
+      calogActions.loading(
+        showCalogId,
+        currentDate.getFullYear(),
+        currentDate.getMonth()
+      );
+    }
   }
   initState = () => {
-    const { calogActions } = this.props;
+    const { calogActions, currentDate, showCalogId } = this.props;
     // 글쓰기 취소, 포스팅 시에 State 초기화
 
     calogActions.initialize();
-    this.getPosts();
+    calogActions.loading(
+      showCalogId,
+      currentDate.getFullYear(),
+      currentDate.getMonth()
+    );
+  };
+  handleActiveDateChange = date => {
+    const { calogActions } = this.props;
+    calogActions.changeActiveDate(date);
   };
   handleLogout = () => {
     const { loginActions, calogActions, history } = this.props;
@@ -89,14 +105,17 @@ class CalogContainer extends Component {
     e.preventDefault();
     const { title, content, todoContent } = this.props.writeForm;
     const { userId } = this.props;
-    const date = getDateNow();
-
     const post = {
       writerId: userId,
       title: title,
       content: content,
       todoContent: todoContent,
-      date: date,
+      date: {
+        year: getFormatNow('YYYY'),
+        month: getFormatNow('MM'),
+        date: getFormatNow('DD'),
+        time: getFormatNow('HH:mm:ss')
+      },
       modifyDate: undefined
     };
 
@@ -124,20 +143,29 @@ class CalogContainer extends Component {
 
     calogActions.changeInput(e.target.name, e.target.value);
   };
+  handlePostListView = targetDate => {
+    // 글 목록
+    const { calogActions } = this.props;
+
+    calogActions.postListView(targetDate.getDate());
+  };
   handlePostView = _id => {
     // 글 보기
-    const { calogActions, posts } = this.props;
+    const { calogActions, targetDate, posts } = this.props;
 
-    calogActions.postView(posts.findIndex(post => post._id === _id), _id);
+    calogActions.postView(
+      posts[targetDate].findIndex(post => post._id === _id),
+      _id
+    );
   };
   handlePostModify = (beforeForm, _id) => {
     // 글 수정 시작
-    const { calogActions, posts } = this.props;
+    const { calogActions, targetDate, posts } = this.props;
 
     this.initState();
     calogActions.postModify(
       beforeForm,
-      posts.findIndex(post => post._id === _id),
+      posts[targetDate].findIndex(post => post._id === _id),
       _id
     );
   };
@@ -159,7 +187,12 @@ class CalogContainer extends Component {
       title: title,
       content: content,
       todoContent: todoContent,
-      modifyDate: this.getDateNow()
+      modifyDate: {
+        year: getFormatNow('YYYY'),
+        month: getFormatNow('MM'),
+        date: getFormatNow('DD'),
+        time: getFormatNow('HH:mm:ss')
+      }
     };
     axios.put(`/api/post/modify/${modifyPostId}`, post).then(res => {
       this.initState();
@@ -187,17 +220,25 @@ class CalogContainer extends Component {
   };
   handleTodoToggle = todoId => {
     // 투두아이템 토글 - 글 보기에서만 가능
+    const { userId, targetDate, showCalogId } = this.props;
+    const isOwner = userId === showCalogId;
+    if (!isOwner) {
+      alert('권한이 없습니다.');
+      return;
+    }
     const { calogActions, viewPostIndex } = this.props;
-    calogActions.todoToggle(viewPostIndex, todoId);
+    calogActions.todoToggle(targetDate, viewPostIndex, todoId);
   };
   render() {
     const {
+      handleActiveDateChange,
       handleLogout,
       handlePostClose,
       handlePostStart,
       handlePostUpload,
       handlePostRemove,
       handleChange,
+      handlePostListView,
       handlePostView,
       handlePostModify,
       handlePostModifyUpload,
@@ -205,19 +246,23 @@ class CalogContainer extends Component {
       handleTodoRemove,
       handleTodoToggle
     } = this;
-    const { userNickname } = this.props;
+    const { userId, showCalogId } = this.props; //store-login
     const {
       popupMode,
+      currentDate,
       writeForm,
       viewPostIndex,
       viewPostId,
-      posts
-    } = this.props;
+      targetDate,
+      posts,
+      status
+    } = this.props; // store-calog
+    const isOwner = userId === showCalogId;
 
     return (
       <div>
         <Header>
-          <h1>{userNickname}'s calog</h1>
+          <h1>{showCalogId}'s Calog</h1>
           <button className="blue" onClick={null}>
             둘러보기
           </button>
@@ -225,15 +270,28 @@ class CalogContainer extends Component {
             로그아웃
           </button>
         </Header>
-        <PostList
-          posts={posts}
-          onPostStart={handlePostStart}
-          onPostRemove={handlePostRemove}
-          onPostView={handlePostView}
-        />
+        {status === 'SUCCESS' && (
+          <Calog
+            posts={posts}
+            onPostStart={handlePostStart}
+            onPostListView={handlePostListView}
+            isOwner={isOwner}
+            Calendar={Calendar}
+            onActiveDateChange={handleActiveDateChange}
+            currentDate={currentDate}
+          />
+        )}
         <Popup className={popupMode ? 'on' : ''}>
           {(() => {
-            if (popupMode === 'write') {
+            if (popupMode === 'list') {
+              return (
+                <PostList
+                  onPostRemove={handlePostRemove}
+                  onPostView={handlePostView}
+                  posts={posts[targetDate]}
+                />
+              );
+            } else if (popupMode === 'write') {
               return (
                 <PostWrite
                   onPostClose={handlePostClose}
@@ -253,7 +311,8 @@ class CalogContainer extends Component {
                   onTodoRemove={handleTodoRemove}
                   onTodoToggle={handleTodoToggle}
                   viewPostId={viewPostId}
-                  post={posts[viewPostIndex]}
+                  post={posts[targetDate][viewPostIndex]}
+                  isOwner={isOwner}
                 />
               );
             } else if (popupMode === 'modify') {
@@ -279,12 +338,16 @@ class CalogContainer extends Component {
 const mapStateToProps = ({ login, calog }) => ({
   userId: login.userId,
   userNickname: login.userNickname,
+  status: calog.status,
   popupMode: calog.popupMode,
+  currentDate: calog.currentDate,
   writeForm: calog.writeForm,
   viewPostIndex: calog.viewPostIndex,
   viewPostId: calog.viewPostId,
   modifyPostIndex: calog.modifyPostIndex,
   modifyPostId: calog.modifyPostId,
+  targetDate: calog.targetDate,
+  showCalogId: calog.showCalogId,
   posts: calog.posts
 });
 const mapDispatchToProps = dispatch => ({

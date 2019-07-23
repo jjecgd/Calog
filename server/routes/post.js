@@ -3,8 +3,12 @@ const Post = require('../models/post');
 
 const router = express.Router();
 
-router.get('/:id', (req, res) => {
-  Post.find({ writerId: req.params.id })
+router.get('/:id/:year/:month', (req, res) => {
+  Post.find({
+    writerId: req.params.id,
+    'date.year': req.params.year,
+    'date.month': req.params.month
+  })
     .sort({ _id: -1 })
     .exec((err, posts) => {
       if (err) throw err;

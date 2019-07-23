@@ -84,7 +84,8 @@ class PostView extends Component {
       onTodoRemove,
       onTodoToggle,
       post,
-      viewPostId
+      viewPostId,
+      isOwner
     } = this.props;
     const { title, content, todoContent, date, modifyDate } = post;
     const todoList = todoContent.map(todo => {
@@ -115,8 +116,15 @@ class PostView extends Component {
         <div className="view_area">
           <h2 className="title_area">{title}</h2>
           <hr />
-          <p className="date">작성일 : {date}</p>
-          {modifyDate ? <p className="date">수정일 : {modifyDate}</p> : null}
+          <p className="date">
+            작성일 : {`${date.year}.${date.month}.${date.date} / ${date.time}`}
+          </p>
+          {modifyDate ? (
+            <p className="date">
+              수정일 :{' '}
+              {`${modifyDate.year}.${modifyDate.month}.${modifyDate.date} / ${modifyDate.time}`}
+            </p>
+          ) : null}
 
           {content ? (
             <div>
@@ -136,12 +144,16 @@ class PostView extends Component {
         </div>
 
         <div className="btn_group">
-          <button className="red" onClick={handlePostRemove}>
-            삭제
-          </button>
-          <button className="teal" onClick={handlePostModify}>
-            수정
-          </button>
+          {isOwner && (
+            <button className="red" onClick={handlePostRemove}>
+              삭제
+            </button>
+          )}
+          {isOwner && (
+            <button className="teal" onClick={handlePostModify}>
+              수정
+            </button>
+          )}
           <button className="blue" onClick={onPostClose}>
             나가기
           </button>

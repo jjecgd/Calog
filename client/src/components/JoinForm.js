@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 
 const Form = styled.form`
   position: absolute;
@@ -46,7 +45,8 @@ class JoinForm extends Component {
       nickname,
       onChange,
       onBlur,
-      onSubmit
+      onSubmit,
+      onCancel
     } = this.props;
     const isCanSubmit =
       id.isValid &&
@@ -128,8 +128,8 @@ class JoinForm extends Component {
           </Msg>
         )}
         <button className={isCanSubmit ? 'green' : 'gray'}>가입하기</button>
-        <button className="blue" onClick={null}>
-          <Link to="/login">취소</Link>
+        <button className="blue" onClick={onCancel}>
+          취소
         </button>
       </Form>
     );

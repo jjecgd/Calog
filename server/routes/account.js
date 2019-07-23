@@ -1,6 +1,5 @@
 const express = require('express');
 const session = require('express-session');
-const bcrypt = require('bcryptjs');
 const Account = require('../models/account');
 
 const router = express.Router();
@@ -23,12 +22,19 @@ router.post('/login', (req, res) => {
   Account.findOne({ id: req.body.id }, (err, account) => {
     if (err) throw err;
 
+    if (!account.validateHash(req.body.password)) {
+      return res.json({
+        msg: '일치하지 않는 비밀번호입니다.'
+      });
+    }
+
     const session = req.session;
     session.loginInfo = {
       _id: account._id,
       id: account.id,
       nickname: account.nickname
     };
+
     return res.json({
       ...session.loginInfo
     });
@@ -225,6 +231,8 @@ router.post('/join', (req, res) => {
     nickname: req.body.nickname,
     created: req.body.created
   });
+
+  account.password = account.generateHash(account.password);
   account.save(err => {
     if (err) throw err;
     return res.json({ success: true });

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 
+import { replaceZero } from '../utils/number';
+
 const CalogWrap = styled.div`
   min-width: 320px;
   box-sizing: border-box;
@@ -12,6 +14,26 @@ const CalogWrap = styled.div`
   left: 0;
 `;
 
+const Header = styled.header`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #099268;
+  h1 {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 300;
+    font-size: 2rem;
+    color: #fff;
+  }
+  .btn_group {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+  }
+`;
+
 const WriteBtn = styled.button`
   position: absolute;
   width: 100%;
@@ -21,28 +43,62 @@ const WriteBtn = styled.button`
 `;
 
 class Calog extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.posts !== this.props.posts;
-  }
   render() {
     const {
       onPostStart,
-      //onPostRemove,
+      onLogout,
       onPostListView,
-      //onPostView,
-      posts,
-      isOwner,
-      Calendar,
       onActiveDateChange,
-      currentDate
+      Calendar,
+      status,
+      showCalogId,
+      isOwner,
+      userId,
+      currentDate,
+      targetDate,
+      posts,
+      history
     } = this.props;
+    const targetPost =
+      status === 'SUCCESS' && posts[targetDate.year][targetDate.month];
+
     return (
       <CalogWrap isOwner={isOwner}>
+        <Header>
+          <h1>{showCalogId}'s Calog</h1>
+          <div className="btn_group">
+            <button
+              className="blue"
+              onClick={() => {
+                history.push('/caloggers');
+              }}
+            >
+              둘러보기
+            </button>
+            {userId !== null ? (
+              <button className="red" onClick={onLogout}>
+                로그아웃
+              </button>
+            ) : (
+              <button
+                className="blue"
+                onClick={() => {
+                  history.push('/login');
+                }}
+              >
+                로그인
+              </button>
+            )}
+          </div>
+        </Header>
         <Calendar
           onActiveDateChange={value => {
-            onActiveDateChange(value.activeStartDate);
+            status === 'SUCCESS' && onActiveDateChange(value.activeStartDate);
           }}
           onClickDay={value => {
+            if (targetPost[replaceZero(value.getDate())] === undefined) {
+              return;
+            }
             onPostListView(value);
           }}
           onClickMonth={value => {
@@ -63,28 +119,32 @@ class Calog extends Component {
             }
           }}
           tileContent={({ date, view }) => {
+            let resultCount = 0;
             return (
               <div className="button_wrap">
                 {(() => {
-                  if (view != 'month') {
+                  if (view !== 'month') {
+                    console.log(`${date.getMonth() + 1}`);
                     return null;
                   } else {
-                    if (posts[date.getDate()]) {
-                      return (
-                        <p className="count">{`${posts[date.getDate()].length} Posts`}</p>
-                      );
+                    if (targetPost[replaceZero(date.getDate())] !== undefined) {
+                      resultCount =
+                        targetPost[replaceZero(date.getDate())].length;
                     } else {
-                      return <p className="count none">Not Post</p>;
+                      resultCount = 0;
                     }
+                    return (
+                      <p className={`count ${resultCount === 0 ? 'none' : ''}`}>
+                        {resultCount}
+                      </p>
+                    );
                   }
                 })()}
-
                 <span className="border_bottom"></span>
               </div>
             );
           }}
         />
-        {/*<List className="list_area">{postArray}</List>*/}
         {isOwner && (
           <WriteBtn className="orange" onClick={onPostStart}>
             글 작성

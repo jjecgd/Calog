@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { Route } from 'react-router-dom';
 
 import GlobalStyles from './components/GlobalStyles';
+import IntroContainer from './containers/IntroContainer';
 import JoinFormContainer from './containers/JoinFormContainer';
 import LoginFormContainer from './containers/LoginFormContainer';
 import CalogContainer from './containers/CalogContainer';
@@ -30,7 +31,7 @@ class App extends Component {
     return (
       <div>
         <GlobalStyles />
-        <Route path="/" component={null} exact />
+        <Route path="/" component={IntroContainer} exact />
         <Route path="/login" component={LoginFormContainer} />
         <Route path="/join" component={JoinFormContainer} />
         <Route path="/calogs/:id" component={CalogContainer} />

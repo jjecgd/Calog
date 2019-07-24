@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import styled from 'styled-components';
 import Calendar from 'react-calendar/dist/entry.nostyle';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getDateNow, getFormatNow } from '../utils/moment';
+import { Route } from 'react-router-dom';
+import { getFormatNow } from '../utils/moment';
+import { replaceZero } from '../utils/number';
 
 import Calog from '../components/Calog';
 import PostWrite from '../components/PostWrite';
@@ -14,68 +15,35 @@ import PostView from '../components/PostView';
 import * as loginActions from '../store/modules/login';
 import * as calogActions from '../store/modules/calog';
 
-const Header = styled.header`
-  position: relative;
-  width: 100%;
-  background: #37b24d;
-  h1 {
-    padding: 1rem;
-    text-align: center;
-    font-weight: 300;
-    font-size: 2rem;
-    color: #fff;
-  }
-  button {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-  }
-`;
-
-const Popup = styled.div`
-  z-index: 2;
-  position: fixed;
-  display: none;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: none;
-  &.on {
-    display: block;
-  }
-`;
-
 class CalogContainer extends Component {
   componentDidMount() {
     const { calogActions, match, currentDate } = this.props;
     calogActions.visitCalog(match.params.id, currentDate);
   }
   componentDidUpdate(prevProps, prevState) {
-    const { calogActions, currentDate, showCalogId } = this.props;
+    const { calogActions, targetDate, showCalogId } = this.props;
 
     if (
-      (currentDate !== prevProps.currentDate ||
+      (targetDate !== prevProps.targetDate ||
         showCalogId !== prevProps.showCalogId) &&
       showCalogId !== ''
     ) {
-      calogActions.loading(
-        showCalogId,
-        currentDate.getFullYear(),
-        currentDate.getMonth()
-      );
+      calogActions.loading(showCalogId, targetDate.year, targetDate.month);
     }
   }
   initState = () => {
-    const { calogActions, currentDate, showCalogId } = this.props;
+    const {
+      calogActions,
+      history,
+      match,
+      targetDate,
+      showCalogId
+    } = this.props;
     // 글쓰기 취소, 포스팅 시에 State 초기화
 
     calogActions.initialize();
-    calogActions.loading(
-      showCalogId,
-      currentDate.getFullYear(),
-      currentDate.getMonth()
-    );
+    calogActions.loading(showCalogId, targetDate.year, targetDate.month);
+    history.push(`${match.url}`);
   };
   handleActiveDateChange = date => {
     const { calogActions } = this.props;
@@ -84,10 +52,10 @@ class CalogContainer extends Component {
   handleLogout = () => {
     const { loginActions, calogActions, history } = this.props;
     axios.post('/api/account/logout').then(res => {
+      history.push('/login');
       loginActions.logout();
       calogActions.logout();
       window.localStorage.clear();
-      history.push('/login');
     });
   };
   handlePostClose = e => {
@@ -97,8 +65,8 @@ class CalogContainer extends Component {
   };
   handlePostStart = () => {
     // 글쓰기 버튼 클릭
-    const { calogActions } = this.props;
-    calogActions.postStart();
+    const { history, match } = this.props;
+    history.push(`${match.url}/write`);
   };
   handlePostUpload = e => {
     // 포스팅
@@ -140,40 +108,39 @@ class CalogContainer extends Component {
   handleChange = e => {
     // 글쓰기 폼에서 입력
     const { calogActions } = this.props;
-
     calogActions.changeInput(e.target.name, e.target.value);
   };
-  handlePostListView = targetDate => {
+  handlePostListView = date => {
     // 글 목록
-    const { calogActions } = this.props;
-
-    calogActions.postListView(targetDate.getDate());
-  };
-  handlePostView = _id => {
-    // 글 보기
-    const { calogActions, targetDate, posts } = this.props;
-
-    calogActions.postView(
-      posts[targetDate].findIndex(post => post._id === _id),
-      _id
+    const { history, match, targetDate } = this.props;
+    history.push(
+      `${match.url}/posts/${targetDate.year}/${targetDate.month}/${replaceZero(
+        date.getDate()
+      )}`
     );
   };
-  handlePostModify = (beforeForm, _id) => {
+  handlePostView = (_id, date) => {
+    // 글 보기
+    const { targetDate, history, match } = this.props;
+
+    history.push(
+      `${match.url}/post/${targetDate.year}/${targetDate.month}/${date}/${_id}`
+    );
+  };
+  handlePostModify = (beforeForm, date, id) => {
     // 글 수정 시작
-    const { calogActions, targetDate, posts } = this.props;
+    const { calogActions, history, match, targetDate } = this.props;
 
     this.initState();
-    calogActions.postModify(
-      beforeForm,
-      posts[targetDate].findIndex(post => post._id === _id),
-      _id
+    calogActions.postModify(beforeForm);
+    history.push(
+      `${match.url}/modify/${targetDate.year}/${targetDate.month}/${date}/${id}`
     );
   };
-  handlePostModifyUpload = e => {
+  handlePostModifyUpload = id => {
     // 글 수정 완료
-    e.preventDefault();
-    const { modifyPostId } = this.props;
-    const { title, content, todoContent } = this.props.writeForm;
+    const { writeForm } = this.props;
+    const { title, content, todoContent } = writeForm;
 
     if (title === '') {
       alert('제목을 입력해주세요.');
@@ -194,7 +161,7 @@ class CalogContainer extends Component {
         time: getFormatNow('HH:mm:ss')
       }
     };
-    axios.put(`/api/post/modify/${modifyPostId}`, post).then(res => {
+    axios.put(`/api/post/modify/${id}`, post).then(res => {
       this.initState();
     });
   };
@@ -218,7 +185,7 @@ class CalogContainer extends Component {
     const { calogActions } = this.props;
     calogActions.todoRemove(todoId);
   };
-  handleTodoToggle = todoId => {
+  handleTodoToggle = (postId, todoId, date) => {
     // 투두아이템 토글 - 글 보기에서만 가능
     const { userId, targetDate, showCalogId } = this.props;
     const isOwner = userId === showCalogId;
@@ -226,8 +193,14 @@ class CalogContainer extends Component {
       alert('권한이 없습니다.');
       return;
     }
-    const { calogActions, viewPostIndex } = this.props;
-    calogActions.todoToggle(targetDate, viewPostIndex, todoId);
+    const { calogActions } = this.props;
+    calogActions.todoToggle(
+      postId,
+      todoId,
+      targetDate.year,
+      targetDate.month,
+      date
+    );
   };
   render() {
     const {
@@ -246,54 +219,47 @@ class CalogContainer extends Component {
       handleTodoRemove,
       handleTodoToggle
     } = this;
-    const { userId, showCalogId } = this.props; //store-login
     const {
-      popupMode,
+      match,
+      userId,
+      showCalogId,
       currentDate,
       writeForm,
-      viewPostIndex,
-      viewPostId,
       targetDate,
       posts,
       status
-    } = this.props; // store-calog
+    } = this.props;
     const isOwner = userId === showCalogId;
 
     return (
       <div>
-        <Header>
-          <h1>{showCalogId}'s Calog</h1>
-          <button className="blue" onClick={null}>
-            둘러보기
-          </button>
-          <button className="red" onClick={handleLogout}>
-            로그아웃
-          </button>
-        </Header>
+        <Route
+          path={`${match.url}`}
+          render={props => (
+            <Calog
+              {...props}
+              onLogout={handleLogout}
+              onPostStart={handlePostStart}
+              onPostListView={handlePostListView}
+              onActiveDateChange={handleActiveDateChange}
+              Calendar={Calendar}
+              status={status}
+              isOwner={isOwner}
+              userId={userId}
+              showCalogId={showCalogId}
+              currentDate={currentDate}
+              targetDate={targetDate}
+              posts={posts}
+            />
+          )}
+        />
         {status === 'SUCCESS' && (
-          <Calog
-            posts={posts}
-            onPostStart={handlePostStart}
-            onPostListView={handlePostListView}
-            isOwner={isOwner}
-            Calendar={Calendar}
-            onActiveDateChange={handleActiveDateChange}
-            currentDate={currentDate}
-          />
-        )}
-        <Popup className={popupMode ? 'on' : ''}>
-          {(() => {
-            if (popupMode === 'list') {
-              return (
-                <PostList
-                  onPostRemove={handlePostRemove}
-                  onPostView={handlePostView}
-                  posts={posts[targetDate]}
-                />
-              );
-            } else if (popupMode === 'write') {
-              return (
+          <div>
+            <Route
+              path={`${match.url}/write`}
+              render={props => (
                 <PostWrite
+                  {...props}
                   onPostClose={handlePostClose}
                   onPostUpload={handlePostUpload}
                   onChange={handleChange}
@@ -301,35 +267,52 @@ class CalogContainer extends Component {
                   onTodoRemove={handleTodoRemove}
                   writeForm={writeForm}
                 />
-              );
-            } else if (popupMode === 'view') {
-              return (
-                <PostView
-                  onPostClose={handlePostClose}
-                  onPostRemove={handlePostRemove}
-                  onPostModify={handlePostModify}
-                  onTodoRemove={handleTodoRemove}
-                  onTodoToggle={handleTodoToggle}
-                  viewPostId={viewPostId}
-                  post={posts[targetDate][viewPostIndex]}
-                  isOwner={isOwner}
-                />
-              );
-            } else if (popupMode === 'modify') {
-              return (
+              )}
+            />
+            <Route
+              path={`${match.url}/modify/:year/:month/:date/:id`}
+              render={props => (
                 <PostWrite
+                  {...props}
                   onPostClose={handlePostClose}
                   onPostUpload={handlePostModifyUpload}
                   onChange={handleChange}
                   onTodoAdd={handleTodoAdd}
                   onTodoRemove={handleTodoRemove}
-                  popupMode={popupMode}
                   writeForm={writeForm}
                 />
-              );
-            }
-          })()}
-        </Popup>
+              )}
+            />
+            <Route
+              path={`${match.url}/post/:year/:month/:date/:id`}
+              render={props => (
+                <PostView
+                  {...props}
+                  onPostClose={handlePostClose}
+                  onPostRemove={handlePostRemove}
+                  onPostModify={handlePostModify}
+                  onTodoRemove={handleTodoRemove}
+                  onTodoToggle={handleTodoToggle}
+                  targetDate={targetDate}
+                  posts={posts}
+                  isOwner={isOwner}
+                />
+              )}
+            />
+            <Route
+              path={`${match.url}/posts/:year/:month/:date`}
+              render={props => (
+                <PostList
+                  {...props}
+                  onPostRemove={handlePostRemove}
+                  onPostView={handlePostView}
+                  targetDate={targetDate}
+                  posts={posts}
+                />
+              )}
+            />
+          </div>
+        )}
       </div>
     );
   }
@@ -339,13 +322,8 @@ const mapStateToProps = ({ login, calog }) => ({
   userId: login.userId,
   userNickname: login.userNickname,
   status: calog.status,
-  popupMode: calog.popupMode,
   currentDate: calog.currentDate,
   writeForm: calog.writeForm,
-  viewPostIndex: calog.viewPostIndex,
-  viewPostId: calog.viewPostId,
-  modifyPostIndex: calog.modifyPostIndex,
-  modifyPostId: calog.modifyPostId,
   targetDate: calog.targetDate,
   showCalogId: calog.showCalogId,
   posts: calog.posts

@@ -15,6 +15,14 @@ const GlobalStyles = createGlobalStyle`
     color:inherit;
   }
 
+  hr {
+    margin: 1rem 0;
+    width: 100%;
+    height: 1px;
+    border: none;
+    background: #dee2e6;
+  }
+
   abbr{
     text-decoration:none;
   }
@@ -25,9 +33,14 @@ const GlobalStyles = createGlobalStyle`
     background: #f1f3f5;
   }
 
+  .btn_group{
+    & button{
+      margin-left:0.8rem;
+    }
+  }
+  
   button{
     padding:0 0.7rem;
-    outline: none;
     border: none;
     line-height: 2.2rem;
     color: #fff;
@@ -57,12 +70,47 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 
+  .introContainer{
+    position:absolute;
+    width:100%;
+    height:100%;
+    .button{
+      display:table;
+      position:absolute;
+      width:50%;
+      height:100%;
+      text-align:center;
+      font-size:2rem;
+      color:#fff;
+      transition:background, 0.3s;
+      & span{
+        display:table-cell;
+        vertical-align:middle;
+      }
+      &.green{
+        top:0;
+        left:0;
+        background:#0ca678;
+        &:hover{
+          background:#087f5b;
+        }
+      }
+      &.blue{
+        top:0;
+        left:50%;
+        background:#1c7ed6;
+        &:hover{
+          background:#1864ab;
+        }
+      }
+    }
+  }
+
   .react-calendar{
     box-sizing:border-box;
     position:relative;
     top:0;
     left:0;
-    margin-top:1px;
     width:100%;
     height:100%;
     & button{
@@ -76,10 +124,11 @@ const GlobalStyles = createGlobalStyle`
       top:0;
       left:0;
       width:100%;
-      font-size:1rem;
-      background:#01ad7b;
+      line-height:1;
       & button{
         height:50px;
+        font-size:1.2rem;
+        background:#01ad7b;
         ${null /* 화살표 버튼들 */}
         &.react-calendar__navigation__arrow{
           width:40px;
@@ -100,8 +149,7 @@ const GlobalStyles = createGlobalStyle`
         box-sizing:border-box;
         background:#f3f4f6;
         color:#80878d;
-        transition-property:background;
-        transition-duration:0.3s;
+        transition-property:background, 0.3s;
         border-radius:0.8rem;
         &:hover{
           background:#e0e1e3;
@@ -124,6 +172,12 @@ const GlobalStyles = createGlobalStyle`
             color:#fff;
             text-align:center;
             text-decoration:none !important;
+            & .react-calendar__month-view__weekdays__weekday{
+              & + .react-calendar__month-view__weekdays__weekday{
+                box-sizing:border-box;
+                border-left:1px solid #fff;
+              }
+            }
           }
           ${null /* 날짜 */}
           & .react-calendar__month-view__days{
@@ -140,10 +194,10 @@ const GlobalStyles = createGlobalStyle`
               position:relative;
               box-sizing:border-box;
               background:#f3f4f6;
-              color:#80878d;
-              transition-property:background;
-              transition-duration:0.3s;
+              color:#555;
+              transition-property:background, 0.3s;
               border-radius:0.8rem;
+              overflow:visible !important;
               &.today{
                 background:#ffe7ae;
               }
@@ -166,22 +220,26 @@ const GlobalStyles = createGlobalStyle`
                   position:absolute;
                   bottom:0;
                   left:0;
-                  width:90%;
+                  width:92%;
                   height:1px;
-                  margin:0 5%;
+                  margin:0 4%;
                   background:#80878d;
                 }
                 & .count{
                   position:absolute;
                   bottom:5%;
-                  width:100%;
-                  color:#6f52a2;
-                  line-height:1;
-                  white-space:nowrap;
-                  text-overflow:ellipsis;
-                  overflow:hidden;
+                  right:5%;
+                  width:1.2rem;
+                  height:1.2rem;
+                  color:#fff;
+                  font-size:0.875rem;
+                  letter-spacing:0;
+                  line-height:1.2rem;
+                  border-radius:50%;
+                  background:#f03e3e;
+                  transition-property:background, 0.3s;
                   &.none{
-                    color:#faadbc;
+                    background:#adb5bd;
                   }
                 }
               }
@@ -195,7 +253,20 @@ const GlobalStyles = createGlobalStyle`
               }
               ${null /* 이전달, 다음달 */}
               &.react-calendar__month-view__days__day--neighboringMonth{
-                color:#c1c1c1;
+                cursor:default;
+                outline:none;
+                pointer-events:none;
+                &:hover{
+                  background:#f3f4f6;
+                }
+                abbr{
+                  display:none;
+                }
+                & .button_wrap{
+                  .count{
+                    display:none;
+                  }
+                }
               }
             }
           }

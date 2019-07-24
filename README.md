@@ -11,6 +11,7 @@
 ### 프론트엔드
 
 - react
+- react-calendar
 - immer
 - moment
 - styled-components

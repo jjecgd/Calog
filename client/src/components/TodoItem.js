@@ -48,7 +48,7 @@ class TodoItem extends Component {
         todoContent: nextProps.post.todoContent
       };
       axios
-        .put(`/api/post/checkTodo/${nextProps.viewPostId}`, post)
+        .put(`/api/post/checkTodo/${nextProps.postId}`, post)
         .then(res => {});
     }
     return nextProps.todo !== this.props.todo;
@@ -64,10 +64,10 @@ class TodoItem extends Component {
     if (!this.props.onTodoToggle) {
       return;
     }
-    const { todoId, onTodoToggle } = this.props;
+    const { onTodoToggle, postId, todoId, date } = this.props;
 
     e.stopPropagation();
-    onTodoToggle(todoId);
+    onTodoToggle(postId, todoId, date);
   };
   render() {
     const { handleTodoRemove, handleTodoToggle } = this;

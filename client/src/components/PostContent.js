@@ -8,11 +8,13 @@ const Post = styled.li`
   vertical-align: top;
   cursor: pointer;
   padding: 1rem;
-  width: 300px;
-  margin: 1rem;
+  width: 100%;
   background: #f8f9fa;
   border-radius: 5px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+  & + & {
+    margin-top: 1rem;
+  }
   .title {
     font-weight: bold;
     color: #212529;
@@ -51,20 +53,7 @@ class PostContent extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps.post !== this.props.post;
   }
-  handlePostRemove = e => {
-    const { _id, onPostRemove } = this.props;
-
-    e.stopPropagation();
-    onPostRemove(_id);
-  };
-  handlePostView = e => {
-    const { _id, onPostView } = this.props;
-
-    e.stopPropagation();
-    onPostView(_id);
-  };
   render() {
-    const { handlePostView } = this;
     const { title, content, todoContent, date, modifyDate } = this.props;
     const count = todoContent.reduce((a, todo) => {
       if (todo.isPerform) return ++a;
@@ -73,7 +62,15 @@ class PostContent extends Component {
     const performRatio = ((count / todoContent.length) * 100).toFixed(0);
 
     return (
-      <Post className="PostContent" onClick={handlePostView}>
+      <Post
+        className="PostContent"
+        onClick={e => {
+          const { _id, onPostView } = this.props;
+
+          e.stopPropagation();
+          onPostView(_id, date.date);
+        }}
+      >
         <div>
           <b className="title">{title}</b>
           <hr />

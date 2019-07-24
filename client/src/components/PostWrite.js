@@ -3,17 +3,26 @@ import styled from 'styled-components';
 
 import TodoItem from './TodoItem';
 
-const Write = styled.div`
+const Wrap = styled.div`
+  z-index: 2;
   box-sizing: border-box;
   position: absolute;
-  padding: 50px 40px;
-  top: 50%;
-  left: 50%;
-  margin: -400px 0 0 -550px;
-  width: 1100px;
-  height: 800px;
-  background: #fff;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding-top: 4rem;
+  overflow: hidden;
+`;
+const Write = styled.div`
+  box-sizing: border-box;
+  padding: 2rem 0 4rem;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #f1f3f5;
   .form_area {
+    padding: 0 2rem;
     height: 100%;
     overflow-y: auto;
     .post_title {
@@ -60,7 +69,6 @@ const Write = styled.div`
       box-sizing: border-box;
       width: 100%;
       list-style: none;
-      overflow-y: auto;
       .TodoItem {
         &.notPerform,
         &.perform {
@@ -106,8 +114,8 @@ class PostWrite extends Component {
       onChange,
       onPostUpload,
       onTodoRemove,
-      popupMode,
-      writeForm
+      writeForm,
+      match
     } = this.props;
     const { title, content, todoTitle, todoContent } = writeForm;
     const todoList = todoContent.map(item => {
@@ -121,49 +129,60 @@ class PostWrite extends Component {
         </TodoItem>
       );
     });
-
     return (
-      <Write>
-        <div className="form_area">
-          <input
-            name="title"
-            className="post_title"
-            value={title}
-            onChange={onChange}
-            placeholder="제목을 입력하세요."
-          />
-          <textarea
-            name="content"
-            className="post_content"
-            type="text"
-            value={content}
-            onChange={onChange}
-            placeholder="내용을 입력하세요."
-          ></textarea>
-
-          <div className="todo_title_area">
+      <Wrap>
+        <Write>
+          <div className="form_area">
             <input
-              name="todoTitle"
-              value={todoTitle}
+              name="title"
+              className="post_title"
+              value={title}
               onChange={onChange}
-              onKeyPress={handleKeyPress}
-              placeholder="항목을 입력하세요."
+              placeholder="제목을 입력하세요."
             />
-            <button onClick={handleTodoAdd}>Add</button>
+            <textarea
+              name="content"
+              className="post_content"
+              type="text"
+              value={content}
+              onChange={onChange}
+              placeholder="내용을 입력하세요."
+            ></textarea>
+
+            <div className="todo_title_area">
+              <input
+                name="todoTitle"
+                value={todoTitle}
+                onChange={onChange}
+                onKeyPress={handleKeyPress}
+                placeholder="항목을 입력하세요."
+              />
+              <button onClick={handleTodoAdd}>Add</button>
+            </div>
+
+            <ul className="todo_content_area">{todoList}</ul>
           </div>
 
-          <ul className="todo_content_area">{todoList}</ul>
-        </div>
-
-        <div className="btn_group">
-          <button className="red" onClick={onPostClose}>
-            취소
-          </button>
-          <button className="orange" onClick={onPostUpload}>
-            {popupMode === 'modify' ? '수정완료' : '게시'}
-          </button>
-        </div>
-      </Write>
+          <div className="btn_group">
+            <button className="red" onClick={onPostClose}>
+              취소
+            </button>
+            <button
+              className="orange"
+              onClick={
+                match.url.split('/')[3] === 'modify'
+                  ? e => {
+                      e.preventDefault();
+                      onPostUpload(match.params.id);
+                    }
+                  : onPostUpload
+              }
+            >
+              {match.url.split('/')[3] === 'modify' ? '수정완료' : '게시'}
+            </button>
+          </div>
+        </Write>
+      </Wrap>
     );
   }
 }

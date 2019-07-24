@@ -1,13 +1,12 @@
 import { createAction, handleActions } from 'redux-actions';
 import axios from 'axios';
 import produce from 'immer';
+import { replaceZero } from '../../utils/number';
 
 const LOGOUT = 'calog/LOGOUT';
 const INITIALIZE = 'calog/INITIALIZE';
 const CHANGE_ACTIVE_DATE = 'calog/CHANGE_ACTIVE_DATE';
 const CHANGE_INPUT = 'calog/CHANGE_INPUT';
-const POST_START = 'calog/POST_START';
-const POST_LIST_VIEW = 'calog/POST_LIST_VIEW';
 const POST_VIEW = 'calog/POST_VIEW';
 const POST_MODIFY = 'calog/POST_MODIFY';
 const TODO_ADD = 'calog/TODO_ADD';
@@ -30,22 +29,13 @@ export const changeInput = createAction(CHANGE_INPUT, (target, value) => ({
   target,
   value
 }));
-export const postStart = createAction(POST_START);
-export const postListView = createAction(POST_LIST_VIEW, targetDate => ({
-  targetDate
-}));
 export const postView = createAction(POST_VIEW, (index, id) => ({
   index,
   id
 }));
-export const postModify = createAction(
-  POST_MODIFY,
-  (beforeForm, index, id) => ({
-    beforeForm,
-    index,
-    id
-  })
-);
+export const postModify = createAction(POST_MODIFY, beforeForm => ({
+  beforeForm
+}));
 export const todoAdd = createAction(TODO_ADD, (todoId, todo) => ({
   todoId,
   todo
@@ -53,10 +43,12 @@ export const todoAdd = createAction(TODO_ADD, (todoId, todo) => ({
 export const todoRemove = createAction(TODO_REMOVE, todoId => ({ todoId }));
 export const todoToggle = createAction(
   TODO_TOGGLE,
-  (targetDate, postIndex, todoId) => ({
-    targetDate,
-    postIndex,
-    todoId
+  (postId, todoId, year, month, date) => ({
+    postId,
+    todoId,
+    year,
+    month,
+    date
   })
 );
 export const visitCalog = createAction(
@@ -68,11 +60,13 @@ export const visitCalog = createAction(
 );
 export const loading = (showCalogId, year, month) => dispatch => {
   dispatch({ type: LOADING });
-  month++;
   axios
-    .get(`/api/post/${showCalogId}/${year}/${month < 10 ? '0' + month : month}`)
+    .get(`/api/post/${showCalogId}/${year}/${month}`)
     .then(res => {
-      dispatch({ type: LOADING_SUCCESS, payload: { posts: res.data } });
+      dispatch({
+        type: LOADING_SUCCESS,
+        payload: { posts: res.data, year, month }
+      });
     })
     .catch(err => {
       dispatch({ type: LOADING_FAILURE });
@@ -82,7 +76,6 @@ export const loading = (showCalogId, year, month) => dispatch => {
 
 const initialState = {
   status: '',
-  popupMode: '',
   currentDate: new Date(),
   writeForm: {
     title: '',
@@ -90,11 +83,10 @@ const initialState = {
     todoTitle: '',
     todoContent: []
   },
-  viewPostIndex: -1,
-  viewPostId: -1,
-  modifyPostIndex: -1,
-  modifyPostId: -1,
-  targetDate: 0,
+  targetDate: {
+    year: '',
+    month: ''
+  },
   showCalogId: '',
   posts: {}
 };
@@ -108,15 +100,60 @@ export default handleActions(
     [LOADING_SUCCESS]: (state, action) =>
       produce(state, draft => {
         draft.status = 'SUCCESS';
-        draft.posts = {};
-        action.payload.posts.map(post => {
-          if (!draft.posts[post.date.date]) {
-            draft.posts[post.date.date] = [];
-            draft.posts[post.date.date].push(post);
+
+        if (
+          draft.posts[action.payload.year] &&
+          draft.posts[action.payload.year][action.payload.month]
+        ) {
+          draft.posts[action.payload.year][action.payload.month] = {};
+        }
+
+        if (action.payload.posts.length > 0) {
+          action.payload.posts.forEach(post => {
+            if (draft.posts[post.date.year] === undefined) {
+              draft.posts[post.date.year] = {};
+              draft.posts[post.date.year][post.date.month] = {};
+              draft.posts[post.date.year][post.date.month][post.date.date] = [];
+              draft.posts[post.date.year][post.date.month][post.date.date].push(
+                post
+              );
+            } else {
+              if (draft.posts[post.date.year][post.date.month] === undefined) {
+                draft.posts[post.date.year][post.date.month] = {};
+                draft.posts[post.date.year][post.date.month][
+                  post.date.date
+                ] = [];
+                draft.posts[post.date.year][post.date.month][
+                  post.date.date
+                ].push(post);
+              } else {
+                if (
+                  draft.posts[post.date.year][post.date.month][
+                    post.date.date
+                  ] === undefined
+                ) {
+                  draft.posts[post.date.year][post.date.month][
+                    post.date.date
+                  ] = [];
+                  draft.posts[post.date.year][post.date.month][
+                    post.date.date
+                  ].push(post);
+                } else {
+                  draft.posts[post.date.year][post.date.month][
+                    post.date.date
+                  ].push(post);
+                }
+              }
+            }
+          });
+        } else {
+          if (draft.posts[action.payload.year] === undefined) {
+            draft.posts[action.payload.year] = {};
+            draft.posts[action.payload.year][action.payload.month] = {};
           } else {
-            draft.posts[post.date.date].push(post);
+            draft.posts[action.payload.year][action.payload.month] = {};
           }
-        });
+        }
       }),
     [LOADING_FAILURE]: (state, action) =>
       produce(state, draft => {
@@ -124,65 +161,41 @@ export default handleActions(
       }),
     [LOGOUT]: (state, action) =>
       produce(state, draft => {
-        draft.popupMode = '';
         draft.writeForm = {
           title: '',
           content: '',
           todoTitle: '',
           todoContent: []
         };
-        draft.viewPostIndex = -1;
-        draft.viewPostId = -1;
-        draft.modifyPostIndex = -1;
-        draft.modifyPostId = -1;
-        draft.targetDate = 0;
         draft.showCalogId = '';
         draft.posts = [];
       }),
     [INITIALIZE]: (state, action) =>
       produce(state, draft => {
-        draft.popupMode = '';
         draft.writeForm = {
           title: '',
           content: '',
           todoTitle: '',
           todoContent: []
         };
-        draft.viewPostIndex = -1;
-        draft.viewPostId = -1;
-        draft.modifyPostIndex = -1;
-        draft.modifyPostId = -1;
-        draft.targetDate = 0;
       }),
     [CHANGE_ACTIVE_DATE]: (state, action) =>
       produce(state, draft => {
+        const targetMonth = action.payload.currentDate.getMonth() + 1;
+        draft.status = 'LOADING';
+        draft.targetDate.year = action.payload.currentDate
+          .getFullYear()
+          .toString();
+        draft.targetDate.month = replaceZero(targetMonth);
         draft.currentDate = action.payload.currentDate;
       }),
     [CHANGE_INPUT]: (state, action) =>
       produce(state, draft => {
         draft.writeForm[action.payload.target] = action.payload.value;
       }),
-    [POST_START]: (state, action) =>
-      produce(state, draft => {
-        draft.popupMode = 'write';
-      }),
-    [POST_LIST_VIEW]: (state, action) =>
-      produce(state, draft => {
-        draft.popupMode = 'list';
-        draft.targetDate = action.payload.targetDate;
-      }),
-    [POST_VIEW]: (state, action) =>
-      produce(state, draft => {
-        draft.popupMode = 'view';
-        draft.viewPostIndex = action.payload.index;
-        draft.viewPostId = action.payload.id;
-      }),
     [POST_MODIFY]: (state, action) =>
       produce(state, draft => {
-        draft.popupMode = 'modify';
         draft.writeForm = action.payload.beforeForm;
-        draft.modifyPostIndex = action.payload.index;
-        draft.modifyPostId = action.payload.id;
       }),
     [TODO_ADD]: (state, action) =>
       produce(state, draft => {
@@ -202,8 +215,9 @@ export default handleActions(
       }),
     [TODO_TOGGLE]: (state, action) =>
       produce(state, draft => {
-        const targetPost =
-          draft.posts[action.payload.targetDate][action.payload.postIndex];
+        const targetPost = draft.posts[action.payload.year][
+          action.payload.month
+        ][action.payload.date].find(post => post._id === action.payload.postId);
         const targetTodoIndex = targetPost.todoContent.findIndex(
           todo => todo.todoId === action.payload.todoId
         );
@@ -212,6 +226,11 @@ export default handleActions(
       }),
     [VISIT_CALOG]: (state, action) =>
       produce(state, draft => {
+        const targetMonth = action.payload.currentDate.getMonth() + 1;
+        draft.targetDate.year = action.payload.currentDate
+          .getFullYear()
+          .toString();
+        draft.targetDate.month = replaceZero(targetMonth);
         draft.currentDate = action.payload.currentDate;
         draft.showCalogId = action.payload.showCalogId;
       })

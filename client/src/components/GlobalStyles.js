@@ -82,7 +82,7 @@ const GlobalStyles = createGlobalStyle`
       text-align:center;
       font-size:2rem;
       color:#fff;
-      transition:background, 0.3s;
+      transition:background 0.3s;
       & span{
         display:table-cell;
         vertical-align:middle;
@@ -149,7 +149,7 @@ const GlobalStyles = createGlobalStyle`
         box-sizing:border-box;
         background:#f3f4f6;
         color:#80878d;
-        transition-property:background, 0.3s;
+        transition:background 0.3s;
         border-radius:0.8rem;
         &:hover{
           background:#e0e1e3;
@@ -195,7 +195,7 @@ const GlobalStyles = createGlobalStyle`
               box-sizing:border-box;
               background:#f3f4f6;
               color:#555;
-              transition-property:background, 0.3s;
+              transition:background 0.3s;
               border-radius:0.8rem;
               overflow:visible !important;
               &.today{
@@ -237,7 +237,7 @@ const GlobalStyles = createGlobalStyle`
                   line-height:1.2rem;
                   border-radius:50%;
                   background:#f03e3e;
-                  transition-property:background, 0.3s;
+                  transition:background 0.3s;
                   &.none{
                     background:#adb5bd;
                   }

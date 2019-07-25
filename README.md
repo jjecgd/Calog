@@ -29,6 +29,7 @@
 - express
 - mongodb
 - mongoose
+- dotenv
 - body-parser
 - express-session
 - bcryptjs

@@ -25,7 +25,7 @@ posts -- postId
 class App extends Component {
   componentDidMount() {
     const { loginActions } = this.props;
-    loginActions.loading();
+    loginActions.login(true);
   }
   render() {
     return (
@@ -41,11 +41,7 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = ({ login, calog }) => ({
-  status: login.status,
-  userId: login.userId,
-  showCalogId: calog.showCalogId
-});
+const mapStateToProps = () => ({});
 
 const mapDispatchToProps = dispatch => ({
   loginActions: bindActionCreators(loginActions, dispatch)

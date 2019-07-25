@@ -8,6 +8,15 @@ import * as joinActions from '../store/modules/join';
 import JoinForm from '../components/JoinForm';
 
 class JoinFormContainer extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    const { history } = this.props;
+
+    if (nextProps.userId !== '') {
+      history.go(-1);
+      alert('이미 로그인 하셨습니다.');
+    }
+    return true;
+  }
   handleChange = e => {
     const { joinActions } = this.props;
 
@@ -50,7 +59,7 @@ class JoinFormContainer extends Component {
       .post('/api/account/join/', userForm)
       .then(res => {
         alert('가입이 완료되었습니다.');
-        history.push('/login');
+        history.replace('/login');
         joinActions.initialize();
       })
       .catch(err => {
@@ -67,6 +76,7 @@ class JoinFormContainer extends Component {
   render() {
     const { handleChange, handleBlur, handleSubmit, handleCancel } = this;
     const {
+      userId,
       id,
       password,
       passwordConfirm,
@@ -74,24 +84,30 @@ class JoinFormContainer extends Component {
       nickname,
       email
     } = this.props;
+
     return (
-      <JoinForm
-        id={id}
-        password={password}
-        passwordConfirm={passwordConfirm}
-        username={username}
-        nickname={nickname}
-        email={email}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-      />
+      <div>
+        {userId === '' && (
+          <JoinForm
+            id={id}
+            password={password}
+            passwordConfirm={passwordConfirm}
+            username={username}
+            nickname={nickname}
+            email={email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+          />
+        )}
+      </div>
     );
   }
 }
 
-const mapStateToProps = ({ join }) => ({
+const mapStateToProps = ({ login, join }) => ({
+  userId: login.userId,
   id: join.id,
   email: join.email,
   password: join.password,

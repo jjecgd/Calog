@@ -1,11 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import axios from 'axios';
 import * as loginActions from '../store/modules/login';
 import LoginForm from '../components/LoginForm';
 
 class LoginFormContainer extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    const { history } = this.props;
+
+    if (nextProps.userId !== '') {
+      history.go(-1);
+      alert('이미 로그인 하셨습니다.');
+    }
+    return true;
+  }
+
   handleChange = e => {
     const { loginActions } = this.props;
     loginActions.changeInput(e.target.name, e.target.value);
@@ -18,35 +27,34 @@ class LoginFormContainer extends Component {
     };
 
     e.preventDefault();
-    axios
-      .post('/api/account/login/', userLoginForm)
-      .then(res => {
-        window.localStorage.setItem('id', res.data.id);
-        window.localStorage.setItem('nickname', res.data.nickname);
-        loginActions.loading();
-        history.push(`/calogs/${res.data.id}`);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    loginActions.login(false, userLoginForm).then(res => {
+      history.replace(`/calogs/${res.data.id}`);
+      loginActions.login(true);
+    });
   };
   render() {
     const { handleChange, handleLogin } = this;
-    const { id, password } = this.props;
+    const { id, password, userId } = this.props;
+
     return (
-      <LoginForm
-        id={id}
-        password={password}
-        onChange={handleChange}
-        onLogin={handleLogin}
-      />
+      <div>
+        {userId === '' && (
+          <LoginForm
+            id={id}
+            password={password}
+            onChange={handleChange}
+            onLogin={handleLogin}
+          />
+        )}
+      </div>
     );
   }
 }
 
 const mapStateToProps = ({ login }) => ({
   id: login.id,
-  password: login.password
+  password: login.password,
+  userId: login.userId
 });
 
 const mapDispatchToProps = dispatch => ({

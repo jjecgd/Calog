@@ -3,6 +3,9 @@ import axios from 'axios';
 import produce from 'immer';
 import { replaceZero } from '../../utils/number';
 
+const LOADING = 'calog/LOADING';
+const LOADING_SUCCESS = 'calog/LOADING_SUCCESS';
+const LOADING_FAILURE = 'calog/LOADING_FAILURE';
 const LOGOUT = 'calog/LOGOUT';
 const INITIALIZE = 'calog/INITIALIZE';
 const CHANGE_ACTIVE_DATE = 'calog/CHANGE_ACTIVE_DATE';
@@ -13,10 +16,23 @@ const TODO_ADD = 'calog/TODO_ADD';
 const TODO_REMOVE = 'calog/TODO_REMOVE';
 const TODO_TOGGLE = 'calog/TODO_TOGGLE';
 const VISIT_CALOG = 'calog/VISIT_CALOG';
-const LOADING = 'calog/LOADING';
-const LOADING_SUCCESS = 'calog/LOADING_SUCCESS';
-const LOADING_FAILURE = 'calog/LOADING_FAILURE';
+const EXIT_CALOG = 'calog/EXIT_CALOG';
 
+export const loading = (currentCalog, year, month) => dispatch => {
+  dispatch({ type: LOADING });
+  axios
+    .get(`/api/post/${currentCalog}/${year}/${month}`)
+    .then(res => {
+      dispatch({
+        type: LOADING_SUCCESS,
+        payload: { posts: res.data, year, month }
+      });
+    })
+    .catch(err => {
+      dispatch({ type: LOADING_FAILURE });
+      console.log(err);
+    });
+};
 export const logout = createAction(LOGOUT);
 export const initialize = createAction(INITIALIZE);
 export const changeActiveDate = createAction(
@@ -51,28 +67,10 @@ export const todoToggle = createAction(
     date
   })
 );
-export const visitCalog = createAction(
-  VISIT_CALOG,
-  (showCalogId, currentDate) => ({
-    showCalogId,
-    currentDate
-  })
-);
-export const loading = (showCalogId, year, month) => dispatch => {
-  dispatch({ type: LOADING });
-  axios
-    .get(`/api/post/${showCalogId}/${year}/${month}`)
-    .then(res => {
-      dispatch({
-        type: LOADING_SUCCESS,
-        payload: { posts: res.data, year, month }
-      });
-    })
-    .catch(err => {
-      dispatch({ type: LOADING_FAILURE });
-      console.log(err);
-    });
-};
+export const visitCalog = createAction(VISIT_CALOG, currentDate => ({
+  currentDate
+}));
+export const exitCalog = createAction(EXIT_CALOG);
 
 const initialState = {
   status: '',
@@ -87,7 +85,6 @@ const initialState = {
     year: '',
     month: ''
   },
-  showCalogId: '',
   posts: {}
 };
 
@@ -161,14 +158,7 @@ export default handleActions(
       }),
     [LOGOUT]: (state, action) =>
       produce(state, draft => {
-        draft.writeForm = {
-          title: '',
-          content: '',
-          todoTitle: '',
-          todoContent: []
-        };
-        draft.showCalogId = '';
-        draft.posts = [];
+        draft.status = '';
       }),
     [INITIALIZE]: (state, action) =>
       produce(state, draft => {
@@ -183,10 +173,10 @@ export default handleActions(
       produce(state, draft => {
         const targetMonth = action.payload.currentDate.getMonth() + 1;
         draft.status = 'LOADING';
-        draft.targetDate.year = action.payload.currentDate
-          .getFullYear()
-          .toString();
-        draft.targetDate.month = replaceZero(targetMonth);
+        draft.targetDate = {
+          year: action.payload.currentDate.getFullYear().toString(),
+          month: replaceZero(targetMonth)
+        };
         draft.currentDate = action.payload.currentDate;
       }),
     [CHANGE_INPUT]: (state, action) =>
@@ -227,12 +217,18 @@ export default handleActions(
     [VISIT_CALOG]: (state, action) =>
       produce(state, draft => {
         const targetMonth = action.payload.currentDate.getMonth() + 1;
-        draft.targetDate.year = action.payload.currentDate
-          .getFullYear()
-          .toString();
-        draft.targetDate.month = replaceZero(targetMonth);
+        draft.status = 'LOADING';
+        draft.targetDate = {
+          year: action.payload.currentDate.getFullYear().toString(),
+          month: replaceZero(targetMonth)
+        };
         draft.currentDate = action.payload.currentDate;
-        draft.showCalogId = action.payload.showCalogId;
+        draft.posts = {};
+      }),
+    [EXIT_CALOG]: (state, action) =>
+      produce(state, draft => {
+        draft.status = '';
+        draft.posts = {};
       })
   },
   initialState

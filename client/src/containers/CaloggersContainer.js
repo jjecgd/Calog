@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 class CalogGobalContainer extends Component {
   render() {
-    return <div>z</div>;
+    return <div>7월 25일 개발예정</div>;
   }
 }
 

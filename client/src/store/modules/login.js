@@ -1,39 +1,58 @@
 import { createAction, handleActions } from 'redux-actions';
+import axios from 'axios';
 
-const LOADING = 'login/LOADING';
-const LOADING_SUCCESS = 'login/LOADING_SUCCESS';
-const LOADING_FAILURE = 'login/LOADING_FAILURE';
-const CHANGE_INPUT = 'login/CHANGE_INPUT';
 const LOGIN = 'login/LOGIN';
+const LOGIN_SUCCESS = 'login/LOGIN_SUCCESS';
+const LOGIN_FAILURE = 'login/LOGIN_FAILURE';
+const CHANGE_INPUT = 'login/CHANGE_INPUT';
 const LOGOUT = 'login/LOGOUT';
 
-export const loading = () => dispatch => {
-  const userId = window.localStorage.getItem('id');
-  const userNickname = window.localStorage.getItem('nickname');
+export const login = (ifAlreadyLogin, userLoginForm) => dispatch => {
+  dispatch({ type: LOGIN });
+  if (ifAlreadyLogin) {
+    const userId = window.localStorage.getItem('id');
+    const userNickname = window.localStorage.getItem('nickname');
 
-  dispatch({ type: LOADING });
-  if (window.localStorage != null) {
-    dispatch({
-      type: LOGIN,
-      payload: {
-        id: userId,
-        nickname: userNickname
-      }
-    });
-    dispatch({ type: LOADING_SUCCESS });
+    if (
+      userId !== 'undefined' &&
+      userNickname !== 'undefined' &&
+      (userId !== null && userNickname !== null) &&
+      (userId !== undefined && userNickname !== undefined)
+    ) {
+      axios
+        .post('/api/account/autoLogin/', { id: userId })
+        .then(res => {})
+        .catch(err => {
+          console.log(err);
+        });
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: { id: userId, nickname: userNickname }
+      });
+    } else {
+      dispatch({ type: LOGIN_FAILURE });
+    }
   } else {
-    dispatch({ type: LOADING_FAILURE });
+    return axios
+      .post('/api/account/login/', userLoginForm)
+      .then(res => {
+        if (res.data.status === 'FAILURE') {
+          alert(res.data.msg);
+          return;
+        } else if (res.data.status === 'SUCCESS') {
+          window.localStorage.setItem('id', res.data.id);
+          window.localStorage.setItem('nickname', res.data.nickname);
+          return res;
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 };
-export const loadingSuccess = createAction(LOADING_SUCCESS);
-export const loadingFailure = createAction(LOADING_FAILURE);
 export const changeInput = createAction(CHANGE_INPUT, (target, value) => ({
   target,
   value
-}));
-export const login = createAction(LOGIN, (id, nickname) => ({
-  id,
-  nickname
 }));
 export const logout = createAction(LOGOUT);
 
@@ -47,28 +66,29 @@ const initialState = {
 
 export default handleActions(
   {
-    [LOADING]: (state, action) => ({
+    [LOGIN]: (state, action) => ({
       ...state,
       status: 'LOADING'
     }),
-    [LOADING_SUCCESS]: (state, action) => ({
+    [LOGIN_SUCCESS]: (state, action) => ({
       ...state,
-      status: 'SUCCESS'
-    }),
-    [LOADING_FAILURE]: (state, action) => ({
-      ...state,
-      status: 'FAILURE'
-    }),
-    [CHANGE_INPUT]: (state, action) => ({
-      ...state,
-      [action.payload.target]: action.payload.value
-    }),
-    [LOGIN]: (state, action) => ({
-      ...state,
+      status: 'SUCCESS',
       userId: action.payload.id,
       userNickname: action.payload.nickname,
       id: '',
       password: ''
+    }),
+    [LOGIN_FAILURE]: (state, action) => ({
+      ...state,
+      status: 'FAILURE',
+      userId: '',
+      userNickname: '',
+      id: '',
+      password: ''
+    }),
+    [CHANGE_INPUT]: (state, action) => ({
+      ...state,
+      [action.payload.target]: action.payload.value
     }),
     [LOGOUT]: (state, action) => initialState
   },

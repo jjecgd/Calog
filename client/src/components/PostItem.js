@@ -49,7 +49,7 @@ const Post = styled.li`
   }
 `;
 
-class PostContent extends Component {
+class PostItem extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps.post !== this.props.post;
   }
@@ -63,7 +63,6 @@ class PostContent extends Component {
 
     return (
       <Post
-        className="PostContent"
         onClick={e => {
           const { _id, onPostView } = this.props;
 
@@ -93,4 +92,4 @@ class PostContent extends Component {
   }
 }
 //content.map(item => <TodoItem key={item.todoId} isPerform={item.isPerform}>{item.todo}</TodoItem>)
-export default PostContent;
+export default PostItem;

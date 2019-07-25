@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 
-import PostContent from './PostContent';
+import PostItem from './PostItem';
 
 const Wrap = styled.div`
   z-index: 2;
@@ -32,7 +32,7 @@ class PostList extends Component {
 
     const postArray = targetPost[match.params.date].map(post => {
       return (
-        <PostContent
+        <PostItem
           onPostRemove={onPostRemove}
           onPostView={onPostView}
           title={post.title}

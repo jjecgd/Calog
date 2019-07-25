@@ -17,32 +17,32 @@ import * as calogActions from '../store/modules/calog';
 
 class CalogContainer extends Component {
   componentDidMount() {
-    const { calogActions, match, currentDate } = this.props;
-    calogActions.visitCalog(match.params.id, currentDate);
+    const { calogActions, currentDate } = this.props;
+    calogActions.visitCalog(currentDate);
   }
   componentDidUpdate(prevProps, prevState) {
-    const { calogActions, targetDate, showCalogId } = this.props;
+    const { calogActions, targetDate } = this.props;
+    const currentCalog = this.getCurrentCalog();
 
-    if (
-      (targetDate !== prevProps.targetDate ||
-        showCalogId !== prevProps.showCalogId) &&
-      showCalogId !== ''
-    ) {
-      calogActions.loading(showCalogId, targetDate.year, targetDate.month);
+    if (targetDate !== prevProps.targetDate) {
+      calogActions.loading(currentCalog, targetDate.year, targetDate.month);
     }
   }
+  componentWillUnmount() {
+    const { calogActions } = this.props;
+    calogActions.exitCalog();
+  }
+  getCurrentCalog = () => {
+    const { match } = this.props;
+    return match.params.id;
+  };
   initState = () => {
-    const {
-      calogActions,
-      history,
-      match,
-      targetDate,
-      showCalogId
-    } = this.props;
+    const { calogActions, history, match, targetDate } = this.props;
+    const currentCalog = this.getCurrentCalog();
     // 글쓰기 취소, 포스팅 시에 State 초기화
 
     calogActions.initialize();
-    calogActions.loading(showCalogId, targetDate.year, targetDate.month);
+    calogActions.loading(currentCalog, targetDate.year, targetDate.month);
     history.push(`${match.url}`);
   };
   handleActiveDateChange = date => {
@@ -50,9 +50,8 @@ class CalogContainer extends Component {
     calogActions.changeActiveDate(date);
   };
   handleLogout = () => {
-    const { loginActions, calogActions, history } = this.props;
+    const { loginActions, calogActions } = this.props;
     axios.post('/api/account/logout').then(res => {
-      history.push('/login');
       loginActions.logout();
       calogActions.logout();
       window.localStorage.clear();
@@ -187,8 +186,9 @@ class CalogContainer extends Component {
   };
   handleTodoToggle = (postId, todoId, date) => {
     // 투두아이템 토글 - 글 보기에서만 가능
-    const { userId, targetDate, showCalogId } = this.props;
-    const isOwner = userId === showCalogId;
+    const { userId, targetDate } = this.props;
+    const currentCalog = this.getCurrentCalog();
+    const isOwner = userId === currentCalog;
     if (!isOwner) {
       alert('권한이 없습니다.');
       return;
@@ -222,14 +222,13 @@ class CalogContainer extends Component {
     const {
       match,
       userId,
-      showCalogId,
       currentDate,
       writeForm,
       targetDate,
       posts,
       status
     } = this.props;
-    const isOwner = userId === showCalogId;
+    const isOwner = userId === match.params.id;
 
     return (
       <div>
@@ -238,15 +237,15 @@ class CalogContainer extends Component {
           render={props => (
             <Calog
               {...props}
+              isOwner={isOwner}
               onLogout={handleLogout}
               onPostStart={handlePostStart}
               onPostListView={handlePostListView}
               onActiveDateChange={handleActiveDateChange}
               Calendar={Calendar}
               status={status}
-              isOwner={isOwner}
               userId={userId}
-              showCalogId={showCalogId}
+              currentCalog={match.params.id}
               currentDate={currentDate}
               targetDate={targetDate}
               posts={posts}
@@ -255,34 +254,38 @@ class CalogContainer extends Component {
         />
         {status === 'SUCCESS' && (
           <div>
-            <Route
-              path={`${match.url}/write`}
-              render={props => (
-                <PostWrite
-                  {...props}
-                  onPostClose={handlePostClose}
-                  onPostUpload={handlePostUpload}
-                  onChange={handleChange}
-                  onTodoAdd={handleTodoAdd}
-                  onTodoRemove={handleTodoRemove}
-                  writeForm={writeForm}
+            {isOwner !== '' && (
+              <div>
+                <Route
+                  path={`${match.url}/write`}
+                  render={props => (
+                    <PostWrite
+                      {...props}
+                      onPostClose={handlePostClose}
+                      onPostUpload={handlePostUpload}
+                      onChange={handleChange}
+                      onTodoAdd={handleTodoAdd}
+                      onTodoRemove={handleTodoRemove}
+                      writeForm={writeForm}
+                    />
+                  )}
                 />
-              )}
-            />
-            <Route
-              path={`${match.url}/modify/:year/:month/:date/:id`}
-              render={props => (
-                <PostWrite
-                  {...props}
-                  onPostClose={handlePostClose}
-                  onPostUpload={handlePostModifyUpload}
-                  onChange={handleChange}
-                  onTodoAdd={handleTodoAdd}
-                  onTodoRemove={handleTodoRemove}
-                  writeForm={writeForm}
+                <Route
+                  path={`${match.url}/modify/:year/:month/:date/:id`}
+                  render={props => (
+                    <PostWrite
+                      {...props}
+                      onPostClose={handlePostClose}
+                      onPostUpload={handlePostModifyUpload}
+                      onChange={handleChange}
+                      onTodoAdd={handleTodoAdd}
+                      onTodoRemove={handleTodoRemove}
+                      writeForm={writeForm}
+                    />
+                  )}
                 />
-              )}
-            />
+              </div>
+            )}
             <Route
               path={`${match.url}/post/:year/:month/:date/:id`}
               render={props => (
@@ -325,7 +328,6 @@ const mapStateToProps = ({ login, calog }) => ({
   currentDate: calog.currentDate,
   writeForm: calog.writeForm,
   targetDate: calog.targetDate,
-  showCalogId: calog.showCalogId,
   posts: calog.posts
 });
 const mapDispatchToProps = dispatch => ({

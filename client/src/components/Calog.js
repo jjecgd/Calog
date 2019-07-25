@@ -51,7 +51,7 @@ class Calog extends Component {
       onActiveDateChange,
       Calendar,
       status,
-      showCalogId,
+      currentCalog,
       isOwner,
       userId,
       currentDate,
@@ -65,7 +65,7 @@ class Calog extends Component {
     return (
       <CalogWrap isOwner={isOwner}>
         <Header>
-          <h1>{showCalogId}'s Calog</h1>
+          <h1>{currentCalog}'s Calog</h1>
           <div className="btn_group">
             <button
               className="blue"
@@ -73,11 +73,11 @@ class Calog extends Component {
                 history.push('/caloggers');
               }}
             >
-              둘러보기
+              Caloggers
             </button>
-            {userId !== null ? (
+            {userId !== '' ? (
               <button className="red" onClick={onLogout}>
-                로그아웃
+                Logout
               </button>
             ) : (
               <button
@@ -86,7 +86,7 @@ class Calog extends Component {
                   history.push('/login');
                 }}
               >
-                로그인
+                Login
               </button>
             )}
           </div>

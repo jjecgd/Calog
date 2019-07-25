@@ -6,11 +6,12 @@ import { connect } from 'react-redux';
 class Intro extends Component {
   render() {
     const { userId } = this.props;
+
     return (
       <div className="introContainer">
         <Link
           className="button green"
-          to={userId === null ? '/login' : `/calogs/${userId}`}
+          to={userId === '' ? '/login' : `/calogs/${userId}`}
         >
           <span>My Calog</span>
         </Link>

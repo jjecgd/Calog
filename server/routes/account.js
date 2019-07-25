@@ -22,9 +22,17 @@ router.post('/login', (req, res) => {
   Account.findOne({ id: req.body.id }, (err, account) => {
     if (err) throw err;
 
+    if (!account) {
+      return res.json({
+        status: 'FAILURE',
+        msg: '아이디를 다시 확인해주세요'
+      });
+    }
+
     if (!account.validateHash(req.body.password)) {
       return res.json({
-        msg: '일치하지 않는 비밀번호입니다.'
+        status: 'FAILURE',
+        msg: '비밀번호를 다시 확인해주세요'
       });
     }
 
@@ -36,7 +44,27 @@ router.post('/login', (req, res) => {
     };
 
     return res.json({
-      ...session.loginInfo
+      ...session.loginInfo,
+      status: 'SUCCESS'
+    });
+  });
+});
+
+router.post('/autoLogin', (req, res) => {
+  // 자동
+  Account.findOne({ id: req.body.id }, (err, account) => {
+    if (err) throw err;
+
+    const session = req.session;
+    session.loginInfo = {
+      _id: account._id,
+      id: account.id,
+      nickname: account.nickname
+    };
+
+    return res.json({
+      ...session.loginInfo,
+      status: 'SUCCESS'
     });
   });
 });

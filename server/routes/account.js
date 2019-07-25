@@ -12,9 +12,16 @@ router.use(
   })
 );
 
-router.get('/getSession', (req, res) => {
-  // 세션 확인
-  res.json({ ...req.session.loginInfo });
+router.get('/getCaloggers', (req, res) => {
+  Account.find()
+    .sort({ _id: -1 })
+    .exec((err, caloggers) => {
+      for (let user of caloggers) {
+        user.password = undefined;
+      }
+      if (err) throw err;
+      return res.json(caloggers);
+    });
 });
 
 router.post('/login', (req, res) => {
@@ -224,7 +231,7 @@ router.post('/check', (req, res) => {
         return res.json({
           target: req.body.target,
           isValid: false,
-          msg: '닉네임은'
+          msg: '닉네임은 한글, 영자 형태의 2~8자리여야 합니다.'
         });
       }
       Account.findOne({ nickname: req.body.nickname }, (err, exists) => {

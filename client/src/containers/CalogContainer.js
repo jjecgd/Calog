@@ -37,13 +37,13 @@ class CalogContainer extends Component {
     return match.params.id;
   };
   initState = () => {
-    const { calogActions, history, match, targetDate } = this.props;
+    const { calogActions, history, targetDate } = this.props;
     const currentCalog = this.getCurrentCalog();
     // 글쓰기 취소, 포스팅 시에 State 초기화
 
     calogActions.initialize();
     calogActions.loading(currentCalog, targetDate.year, targetDate.month);
-    history.push(`${match.url}`);
+    history.go(-1);
   };
   handleActiveDateChange = date => {
     const { calogActions } = this.props;

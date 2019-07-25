@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 
-const Form = styled.form`
+const Wrap = styled.div`
+  box-sizing: border-box;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -150px 0 0 -200px;
-  width: 400px;
-  height: 200px;
-
+  padding: 1rem;
+  width: 100%;
+  height: 100%;
+`;
+const Form = styled.form`
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
   input {
     box-sizing: border-box;
     width: 100%;
     padding: 0.5rem;
     margin-bottom: 0.5rem;
   }
-
   button {
     width: 100%;
     margin-bottom: 0.5rem;
@@ -56,82 +58,74 @@ class JoinForm extends Component {
       nickname.isValid;
 
     return (
-      <Form
-        onSubmit={
-          isCanSubmit
-            ? onSubmit
-            : e => {
-                e.preventDefault();
-                return false;
-              }
-        }
-      >
-        <input
-          name="id"
-          placeholder="아이디"
-          value={id.value}
-          onChange={onChange}
-          onBlur={onBlur}
-        />
-        {id.msg !== '' && (
+      <Wrap>
+        <Form
+          onSubmit={
+            isCanSubmit
+              ? onSubmit
+              : e => {
+                  e.preventDefault();
+                  return false;
+                }
+          }
+        >
+          <input
+            name="id"
+            placeholder="아이디"
+            value={id.value}
+            onChange={onChange}
+            onBlur={onBlur}
+          />
           <Msg className={id.isValid ? 'valid' : 'notValid'}>{id.msg}</Msg>
-        )}
-        <input
-          name="email"
-          placeholder="이메일"
-          type="email"
-          value={email.value}
-          onChange={onChange}
-          onBlur={onBlur}
-        />
-        {email.msg !== '' && (
+          <input
+            name="email"
+            placeholder="이메일"
+            type="email"
+            value={email.value}
+            onChange={onChange}
+            onBlur={onBlur}
+          />
           <Msg className={email.isValid ? 'valid' : 'notValid'}>
             {email.msg}
           </Msg>
-        )}
-        <input
-          name="password"
-          placeholder="비밀번호"
-          type="password"
-          value={password.value}
-          onChange={onChange}
-          onBlur={onBlur}
-        />
-        {password.msg !== '' && (
+          <input
+            name="password"
+            placeholder="비밀번호"
+            type="password"
+            value={password.value}
+            onChange={onChange}
+            onBlur={onBlur}
+          />
           <Msg className={password.isValid ? 'valid' : 'notValid'}>
             {password.msg}
           </Msg>
-        )}
-        <input
-          name="passwordConfirm"
-          placeholder="비밀번호 확인"
-          type="password"
-          value={passwordConfirm.value}
-          onChange={onChange}
-          onBlur={onBlur}
-        />
-        {passwordConfirm.msg !== '' && (
+          <input
+            name="passwordConfirm"
+            placeholder="비밀번호 확인"
+            type="password"
+            value={passwordConfirm.value}
+            onChange={onChange}
+            onBlur={onBlur}
+          />
           <Msg className={passwordConfirm.isValid ? 'valid' : 'notValid'}>
             {passwordConfirm.msg}
           </Msg>
-        )}
-        <input
-          name="nickname"
-          placeholder="닉네임"
-          value={nickname.value}
-          onChange={onChange}
-          onBlur={onBlur}
-        />
-        {nickname.msg !== '' && (
+          <input
+            name="nickname"
+            placeholder="닉네임"
+            value={nickname.value}
+            onChange={onChange}
+            onBlur={onBlur}
+          />
           <Msg className={nickname.isValid ? 'valid' : 'notValid'}>
             {nickname.msg}
           </Msg>
-        )}
-        <button className={isCanSubmit ? 'green' : 'gray'}>가입하기</button>
-        <button className="blue" onClick={onCancel}>
-          취소
-        </button>
-      </Form>
+          <button className={isCanSubmit ? 'green' : 'gray'}>가입하기</button>
+          <button className="blue" onClick={onCancel}>
+            취소
+          </button>
+        </Form>
+      </Wrap>
     );
   }
 }

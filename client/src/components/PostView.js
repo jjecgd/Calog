@@ -116,12 +116,12 @@ class PostView extends Component {
               작성일 :{' '}
               {`${date.year}.${date.month}.${date.date} / ${date.time}`}
             </p>
-            {modifyDate ? (
+            {/*modifyDate ? (
               <p className="date">
                 수정일 :{' '}
                 {`${modifyDate.year}.${modifyDate.month}.${modifyDate.date} / ${modifyDate.time}`}
               </p>
-            ) : null}
+            ) : null*/}
 
             {content ? (
               <div>

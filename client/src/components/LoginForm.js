@@ -2,21 +2,23 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
-const Form = styled.form`
+const Wrap = styled.div`
+  box-sizing: border-box;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -150px 0 0 -200px;
-  width: 400px;
-  height: 200px;
-
+  padding: 1rem;
+  width: 100%;
+  height: 100%;
+`;
+const Form = styled.form`
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
   input {
     box-sizing: border-box;
     width: 100%;
     padding: 0.5rem;
     margin-bottom: 0.5rem;
   }
-
   button {
     width: 100%;
     margin-bottom: 0.5rem;
@@ -28,7 +30,7 @@ class LoginForm extends Component {
     const { id, password, onChange, onLogin } = this.props;
 
     return (
-      <div>
+      <Wrap>
         <Form onSubmit={onLogin}>
           <input
             name="id"
@@ -48,7 +50,7 @@ class LoginForm extends Component {
             <Link to="/join">회원가입</Link>
           </button>
         </Form>
-      </div>
+      </Wrap>
     );
   }
 }

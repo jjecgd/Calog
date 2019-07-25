@@ -73,13 +73,13 @@ class PostItem extends Component {
         <div>
           <b className="title">{title}</b>
           <hr />
-          <p className="upload_date">{`${date.year}.${date.month}.${date.date} / ${date.time}`}</p>
-          {modifyDate ? (
+          <p className="upload_date">{`작성일 : ${date.year}.${date.month}.${date.date} / ${date.time}`}</p>
+          {/*modifyDate ? (
             <p className="upload_date">
               수정 :{' '}
               {`${modifyDate.year}.${modifyDate.month}.${modifyDate.date} / ${modifyDate.time}`}
             </p>
-          ) : null}
+          ) : null*/}
           <p className="content">{content}</p>
           {todoContent.length > 0 ? (
             <p className="perform_ratio">

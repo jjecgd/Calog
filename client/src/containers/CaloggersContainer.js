@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import * as caloggersActions from '../store/modules/caloggers';
 
 const Wrap = styled.div`
-  padding: 2rem;
+  padding: 6rem 2rem 2rem;
 `;
 const Caloger = styled(Link)`
   display: inline-block;
@@ -27,6 +27,21 @@ const Caloger = styled(Link)`
     background: #5f3dc4;
   }
 `;
+const Header = styled.header`
+  z-index: 3;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #099268;
+  h1 {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 300;
+    font-size: 2rem;
+    color: #fff;
+  }
+`;
 
 class CalogGobalContainer extends Component {
   componentDidMount() {
@@ -34,18 +49,26 @@ class CalogGobalContainer extends Component {
     caloggersActions.getCaloggers();
   }
   render() {
-    const { calogUsers } = this.props;
+    const { calogUsers, userId, history } = this.props;
     const caloggers = calogUsers.map(caloger => (
       <Caloger to={`calogs/${caloger.id}`} key={caloger._id}>
         {caloger.nickname}
       </Caloger>
     ));
 
-    return <Wrap>{caloggers}</Wrap>;
+    return (
+      <Wrap>
+        <Header>
+          <h1>Caloggers</h1>
+        </Header>
+        {caloggers}
+      </Wrap>
+    );
   }
 }
 
-const mapStateToProps = ({ caloggers }) => ({
+const mapStateToProps = ({ login, caloggers }) => ({
+  userId: login.userId,
   status: caloggers.status,
   calogUsers: caloggers.calogUsers
 });

@@ -15,6 +15,7 @@ const CalogWrap = styled.div`
 `;
 
 const Header = styled.header`
+  z-index:3;
   position: absolute;
   top: 0;
   left: 0;

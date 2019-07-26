@@ -1,6 +1,7 @@
 # Calog
 
-> calender + log
+> 컨셉 - calender + log
+> 사용해보기 - https://caloggers.herokuapp.com/
 
 ## 개발 환경
 

@@ -19,7 +19,7 @@ const db =
         const http = require('http');
         setInterval(function() {
           console.log('wake up!');
-          http.get('https://caloggers.herokuapp.com');
+          http.get('http://caloggers.herokuapp.com');
         }, 300000);
       })();
 const port = process.env.PORT || 5000;

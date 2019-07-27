@@ -49,7 +49,7 @@ class CalogGobalContainer extends Component {
     caloggersActions.getCaloggers();
   }
   render() {
-    const { calogUsers, userId, history } = this.props;
+    const { calogUsers } = this.props;
     const caloggers = calogUsers.map(caloger => (
       <Caloger to={`calogs/${caloger.id}`} key={caloger._id}>
         {caloger.nickname}

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import styled from 'styled-components';
 import Calendar from 'react-calendar/dist/entry.nostyle';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -15,6 +16,27 @@ import PostView from '../components/PostView';
 import * as loginActions from '../store/modules/login';
 import * as calogActions from '../store/modules/calog';
 
+const Header = styled.header`
+  z-index: 3;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #099268;
+  h1 {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 300;
+    font-size: 2rem;
+    color: #fff;
+  }
+  .btn_group {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+  }
+`;
+
 class CalogContainer extends Component {
   componentDidMount() {
     const { calogActions, currentDate } = this.props;
@@ -22,9 +44,8 @@ class CalogContainer extends Component {
   }
   componentDidUpdate(prevProps, prevState) {
     const { calogActions, targetDate } = this.props;
-    const currentCalog = this.getCurrentCalog();
-
     if (targetDate !== prevProps.targetDate) {
+      const currentCalog = this.getCurrentCalog();
       calogActions.loading(currentCalog, targetDate.year, targetDate.month);
     }
   }
@@ -36,14 +57,18 @@ class CalogContainer extends Component {
     const { match } = this.props;
     return match.params.id;
   };
-  initState = () => {
-    const { calogActions, history, targetDate } = this.props;
+  postReload = where => {
+    const { calogActions, targetDate, history, match } = this.props;
     const currentCalog = this.getCurrentCalog();
-    // 글쓰기 취소, 포스팅 시에 State 초기화
-
+    console.log(match);
     calogActions.initialize();
     calogActions.loading(currentCalog, targetDate.year, targetDate.month);
-    history.go(-1);
+    if (where === 'back') {
+      history.go(-1);
+    } else if (where === 'home') {
+      console.log(history.go(-1));
+      history.replace(`${match.url}`);
+    }
   };
   handleActiveDateChange = date => {
     const { calogActions } = this.props;
@@ -60,7 +85,7 @@ class CalogContainer extends Component {
   handlePostClose = e => {
     // 글쓰기 / 글보기 닫음
     e.preventDefault();
-    this.initState();
+    this.postReload('back');
   };
   handlePostStart = () => {
     // 글쓰기 버튼 클릭
@@ -95,13 +120,13 @@ class CalogContainer extends Component {
       return;
     }
     axios.post('/api/post/upload/', post).then(res => {
-      this.initState();
+      this.postReload('home');
     });
   };
   handlePostRemove = _id => {
     // 포스트 삭제
     axios.delete(`/api/post/delete/${_id}`).then(res => {
-      this.initState();
+      this.postReload('home');
     });
   };
   handleChange = e => {
@@ -130,7 +155,6 @@ class CalogContainer extends Component {
     // 글 수정 시작
     const { calogActions, history, match, targetDate } = this.props;
 
-    this.initState();
     calogActions.postModify(beforeForm);
     history.push(
       `${match.url}/modify/${targetDate.year}/${targetDate.month}/${date}/${id}`
@@ -161,7 +185,7 @@ class CalogContainer extends Component {
       }
     };
     axios.put(`/api/post/modify/${id}`, post).then(res => {
-      this.initState();
+      this.postReload('back');
     });
   };
   handleTodoAdd = todo => {
@@ -220,102 +244,127 @@ class CalogContainer extends Component {
       handleTodoToggle
     } = this;
     const {
-      match,
       userId,
       currentDate,
       writeForm,
       targetDate,
       posts,
-      status
+      status,
+      history,
+      match
     } = this.props;
     const isOwner = userId === match.params.id;
 
     return (
       <div>
+        <Header>
+          <h1>{match.params.id}'s Calog</h1>
+          <div className="btn_group">
+            <button
+              className="blue"
+              onClick={() => {
+                history.push('/caloggers');
+              }}
+            >
+              Caloggers
+            </button>
+            {userId !== '' ? (
+              <button className="red" onClick={handleLogout}>
+                Logout
+              </button>
+            ) : (
+              <button
+                className="blue"
+                onClick={() => {
+                  history.push('/login');
+                }}
+              >
+                Login
+              </button>
+            )}
+          </div>
+        </Header>
         <Route
           path={`${match.url}`}
+          exact
           render={props => (
             <Calog
               {...props}
+              status={status}
               isOwner={isOwner}
               onLogout={handleLogout}
               onPostStart={handlePostStart}
               onPostListView={handlePostListView}
               onActiveDateChange={handleActiveDateChange}
               Calendar={Calendar}
-              status={status}
               userId={userId}
-              currentCalog={match.params.id}
               currentDate={currentDate}
               targetDate={targetDate}
               posts={posts}
             />
           )}
         />
-        {status === 'SUCCESS' && (
+        {isOwner !== '' && (
           <div>
-            {isOwner !== '' && (
-              <div>
-                <Route
-                  path={`${match.url}/write`}
-                  render={props => (
-                    <PostWrite
-                      {...props}
-                      onPostClose={handlePostClose}
-                      onPostUpload={handlePostUpload}
-                      onChange={handleChange}
-                      onTodoAdd={handleTodoAdd}
-                      onTodoRemove={handleTodoRemove}
-                      writeForm={writeForm}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${match.url}/modify/:year/:month/:date/:id`}
-                  render={props => (
-                    <PostWrite
-                      {...props}
-                      onPostClose={handlePostClose}
-                      onPostUpload={handlePostModifyUpload}
-                      onChange={handleChange}
-                      onTodoAdd={handleTodoAdd}
-                      onTodoRemove={handleTodoRemove}
-                      writeForm={writeForm}
-                    />
-                  )}
-                />
-              </div>
-            )}
             <Route
-              path={`${match.url}/post/:year/:month/:date/:id`}
+              path={`${match.url}/write`}
               render={props => (
-                <PostView
+                <PostWrite
                   {...props}
                   onPostClose={handlePostClose}
-                  onPostRemove={handlePostRemove}
-                  onPostModify={handlePostModify}
+                  onPostUpload={handlePostUpload}
+                  onChange={handleChange}
+                  onTodoAdd={handleTodoAdd}
                   onTodoRemove={handleTodoRemove}
-                  onTodoToggle={handleTodoToggle}
-                  targetDate={targetDate}
-                  posts={posts}
-                  isOwner={isOwner}
+                  writeForm={writeForm}
                 />
               )}
             />
             <Route
-              path={`${match.url}/posts/:year/:month/:date`}
+              path={`${match.url}/modify/:year/:month/:date/:id`}
               render={props => (
-                <PostList
+                <PostWrite
                   {...props}
-                  onPostRemove={handlePostRemove}
-                  onPostView={handlePostView}
-                  targetDate={targetDate}
-                  posts={posts}
+                  onPostClose={handlePostClose}
+                  onPostUpload={handlePostModifyUpload}
+                  onChange={handleChange}
+                  onTodoAdd={handleTodoAdd}
+                  onTodoRemove={handleTodoRemove}
+                  writeForm={writeForm}
                 />
               )}
             />
           </div>
         )}
+        <Route
+          path={`${match.url}/post/:year/:month/:date/:id`}
+          render={props => (
+            <PostView
+              {...props}
+              onPostClose={handlePostClose}
+              onPostRemove={handlePostRemove}
+              onPostModify={handlePostModify}
+              onTodoToggle={handleTodoToggle}
+              targetDate={targetDate}
+              posts={posts}
+              isOwner={isOwner}
+            />
+          )}
+        />
+        <Route
+          path={`${match.url}/posts/:year/:month/:date`}
+          render={props => (
+            <PostList
+              {...props}
+              onPostRemove={handlePostRemove}
+              onPostView={handlePostView}
+              targetDate={targetDate}
+              status={status}
+              userId={userId}
+              posts={posts}
+            />
+          )}
+        />
       </div>
     );
   }

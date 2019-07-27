@@ -13,28 +13,6 @@ const CalogWrap = styled.div`
   top: 0;
   left: 0;
 `;
-
-const Header = styled.header`
-  z-index:3;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: #099268;
-  h1 {
-    padding: 1rem;
-    text-align: center;
-    font-weight: 300;
-    font-size: 2rem;
-    color: #fff;
-  }
-  .btn_group {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-  }
-`;
-
 const WriteBtn = styled.button`
   position: absolute;
   width: 100%;
@@ -47,51 +25,20 @@ class Calog extends Component {
   render() {
     const {
       onPostStart,
-      onLogout,
       onPostListView,
       onActiveDateChange,
       Calendar,
       status,
-      currentCalog,
       isOwner,
-      userId,
       currentDate,
       targetDate,
-      posts,
-      history
+      posts
     } = this.props;
     const targetPost =
       status === 'SUCCESS' && posts[targetDate.year][targetDate.month];
 
     return (
       <CalogWrap isOwner={isOwner}>
-        <Header>
-          <h1>{currentCalog}'s Calog</h1>
-          <div className="btn_group">
-            <button
-              className="blue"
-              onClick={() => {
-                history.push('/caloggers');
-              }}
-            >
-              Caloggers
-            </button>
-            {userId !== '' ? (
-              <button className="red" onClick={onLogout}>
-                Logout
-              </button>
-            ) : (
-              <button
-                className="blue"
-                onClick={() => {
-                  history.push('/login');
-                }}
-              >
-                Login
-              </button>
-            )}
-          </div>
-        </Header>
         <Calendar
           onActiveDateChange={value => {
             status === 'SUCCESS' && onActiveDateChange(value.activeStartDate);

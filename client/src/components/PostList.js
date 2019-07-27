@@ -25,27 +25,41 @@ const List = styled.div`
 `;
 
 class PostList extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    const { userId, targetDate, match, history } = this.props;
+    const { posts } = nextProps;
+    if (
+      !posts[targetDate.year] ||
+      !posts[targetDate.year][targetDate.month] ||
+      !posts[targetDate.year][targetDate.month][match.params.date]
+    ) {
+      history.replace(`/calogs/${userId}`);
+    }
+    return true;
+  }
   render() {
     const { onPostRemove, onPostView, posts, match, targetDate } = this.props;
 
-    const targetPost = posts[targetDate.year][targetDate.month];
-
-    const postArray = targetPost[match.params.date].map(post => {
-      return (
-        <PostItem
-          onPostRemove={onPostRemove}
-          onPostView={onPostView}
-          title={post.title}
-          content={post.content}
-          todoContent={post.todoContent}
-          date={post.date}
-          modifyDate={post.modifyDate}
-          key={post._id}
-          _id={post._id}
-          post={post}
-        />
-      );
-    });
+    const postArray =
+      posts[targetDate.year] &&
+      posts[targetDate.year][targetDate.month] &&
+      posts[targetDate.year][targetDate.month][match.params.date] &&
+      posts[targetDate.year][targetDate.month][match.params.date].map(post => {
+        return (
+          <PostItem
+            onPostRemove={onPostRemove}
+            onPostView={onPostView}
+            title={post.title}
+            content={post.content}
+            todoContent={post.todoContent}
+            date={post.date}
+            modifyDate={post.modifyDate}
+            key={post._id}
+            _id={post._id}
+            post={post}
+          />
+        );
+      });
     return (
       <Wrap>
         <List>

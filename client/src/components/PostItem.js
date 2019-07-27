@@ -54,7 +54,7 @@ class PostItem extends Component {
     return nextProps.post !== this.props.post;
   }
   render() {
-    const { title, content, todoContent, date, modifyDate } = this.props;
+    const { title, content, todoContent, date } = this.props;
     const count = todoContent.reduce((a, todo) => {
       if (todo.isPerform) return ++a;
       else return a;
@@ -74,12 +74,6 @@ class PostItem extends Component {
           <b className="title">{title}</b>
           <hr />
           <p className="upload_date">{`작성일 : ${date.year}.${date.month}.${date.date} / ${date.time}`}</p>
-          {/*modifyDate ? (
-            <p className="upload_date">
-              수정 :{' '}
-              {`${modifyDate.year}.${modifyDate.month}.${modifyDate.date} / ${modifyDate.time}`}
-            </p>
-          ) : null*/}
           <p className="content">{content}</p>
           {todoContent.length > 0 ? (
             <p className="perform_ratio">
@@ -91,5 +85,4 @@ class PostItem extends Component {
     );
   }
 }
-//content.map(item => <TodoItem key={item.todoId} isPerform={item.isPerform}>{item.todo}</TodoItem>)
 export default PostItem;

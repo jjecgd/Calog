@@ -81,7 +81,7 @@ class PostView extends Component {
       targetPosts.find(post => {
         return post._id === match.params.id;
       });
-    const { _id, title, content, todoContent, date, modifyDate } = targetPost;
+    const { _id, title, content, todoContent, date } = targetPost;
     const todoList = todoContent.map(todo => {
       return (
         <TodoItem
@@ -116,12 +116,6 @@ class PostView extends Component {
               작성일 :{' '}
               {`${date.year}.${date.month}.${date.date} / ${date.time}`}
             </p>
-            {/*modifyDate ? (
-              <p className="date">
-                수정일 :{' '}
-                {`${modifyDate.year}.${modifyDate.month}.${modifyDate.date} / ${modifyDate.time}`}
-              </p>
-            ) : null*/}
 
             {content ? (
               <div>

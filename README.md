@@ -1,7 +1,6 @@
-# Calog
+# [Calog](https://caloggers.herokuapp.com/)
 
-> 컨셉 - calender + log
-> 사용해보기 - https://caloggers.herokuapp.com/
+> 컨셉 - Calender + log
 
 ## 개발 환경
 
@@ -28,9 +27,12 @@
 ### 백엔드
 
 - express
-- mongodb
 - mongoose
 - dotenv
 - body-parser
 - express-session
 - bcryptjs
+
+### 데이터베이스
+
+- mongodb

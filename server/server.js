@@ -14,7 +14,14 @@ const app = express();
 const db =
   process.env.NODE_ENV === 'development'
     ? mongoose.connect('mongodb://localhost/calog')
-    : mongoose.connect(process.env.MONGO_URI);
+    : (() => {
+        mongoose.connect(process.env.MONGO_URI);
+        const http = require('http');
+        setInterval(function() {
+          console.log('wake up!');
+          http.get('https://caloggers.herokuapp.com');
+        }, 300000);
+      })();
 const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());

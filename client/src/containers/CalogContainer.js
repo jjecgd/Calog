@@ -57,16 +57,22 @@ class CalogContainer extends Component {
     const { match } = this.props;
     return match.params.id;
   };
+  getPostExist = (year, month, date) => {
+    const { posts } = this.props;
+
+    return posts[year] && posts[year][month] && posts[year][month][date]
+      ? true
+      : false;
+  };
   postReload = where => {
     const { calogActions, targetDate, history, match } = this.props;
     const currentCalog = this.getCurrentCalog();
-    console.log(match);
+
     calogActions.initialize();
     calogActions.loading(currentCalog, targetDate.year, targetDate.month);
     if (where === 'back') {
       history.go(-1);
     } else if (where === 'home') {
-      console.log(history.go(-1));
       history.replace(`${match.url}`);
     }
   };
@@ -82,7 +88,7 @@ class CalogContainer extends Component {
       window.localStorage.clear();
     });
   };
-  handlePostClose = e => {
+  handleGoBack = e => {
     // 글쓰기 / 글보기 닫음
     e.preventDefault();
     this.postReload('back');
@@ -151,14 +157,10 @@ class CalogContainer extends Component {
       `${match.url}/post/${targetDate.year}/${targetDate.month}/${date}/${_id}`
     );
   };
-  handlePostModify = (beforeForm, date, id) => {
+  handlePostModify = postData => {
     // 글 수정 시작
-    const { calogActions, history, match, targetDate } = this.props;
-
-    calogActions.postModify(beforeForm);
-    history.push(
-      `${match.url}/modify/${targetDate.year}/${targetDate.month}/${date}/${id}`
-    );
+    const { calogActions } = this.props;
+    calogActions.postModify(postData);
   };
   handlePostModifyUpload = id => {
     // 글 수정 완료
@@ -174,9 +176,9 @@ class CalogContainer extends Component {
       return;
     }
     const post = {
-      title: title,
-      content: content,
-      todoContent: todoContent,
+      title,
+      content,
+      todoContent,
       modifyDate: {
         year: getFormatNow('YYYY'),
         month: getFormatNow('MM'),
@@ -228,9 +230,10 @@ class CalogContainer extends Component {
   };
   render() {
     const {
+      getPostExist,
       handleActiveDateChange,
       handleLogout,
-      handlePostClose,
+      handleGoBack,
       handlePostStart,
       handlePostUpload,
       handlePostRemove,
@@ -311,11 +314,12 @@ class CalogContainer extends Component {
               render={props => (
                 <PostWrite
                   {...props}
-                  onPostClose={handlePostClose}
+                  onGoBack={handleGoBack}
                   onPostUpload={handlePostUpload}
                   onChange={handleChange}
                   onTodoAdd={handleTodoAdd}
                   onTodoRemove={handleTodoRemove}
+                  mode="write"
                   writeForm={writeForm}
                 />
               )}
@@ -325,11 +329,18 @@ class CalogContainer extends Component {
               render={props => (
                 <PostWrite
                   {...props}
-                  onPostClose={handlePostClose}
+                  calogActions={calogActions}
+                  getPostExist={getPostExist}
+                  onGoBack={handleGoBack}
                   onPostUpload={handlePostModifyUpload}
+                  onPostModify={handlePostModify}
                   onChange={handleChange}
                   onTodoAdd={handleTodoAdd}
                   onTodoRemove={handleTodoRemove}
+                  status={status}
+                  mode="modify"
+                  posts={posts}
+                  userId={userId}
                   writeForm={writeForm}
                 />
               )}
@@ -341,12 +352,13 @@ class CalogContainer extends Component {
           render={props => (
             <PostView
               {...props}
-              onPostClose={handlePostClose}
+              getPostExist={getPostExist}
+              onGoBack={handleGoBack}
               onPostRemove={handlePostRemove}
-              onPostModify={handlePostModify}
               onTodoToggle={handleTodoToggle}
               targetDate={targetDate}
               posts={posts}
+              userId={userId}
               isOwner={isOwner}
             />
           )}
@@ -356,6 +368,8 @@ class CalogContainer extends Component {
           render={props => (
             <PostList
               {...props}
+              getPostExist={getPostExist}
+              onGoBack={handleGoBack}
               onPostRemove={handlePostRemove}
               onPostView={handlePostView}
               targetDate={targetDate}

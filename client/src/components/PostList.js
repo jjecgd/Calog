@@ -13,6 +13,11 @@ const Wrap = styled.div`
   height: 100%;
   padding-top: 4rem;
   overflow: hidden;
+  .btn_group {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+  }
 `;
 const List = styled.div`
   box-sizing: border-box;
@@ -25,25 +30,38 @@ const List = styled.div`
 `;
 
 class PostList extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    const { userId, targetDate, match, history } = this.props;
-    const { posts } = nextProps;
-    if (
-      !posts[targetDate.year] ||
-      !posts[targetDate.year][targetDate.month] ||
-      !posts[targetDate.year][targetDate.month][match.params.date]
-    ) {
-      history.replace(`/calogs/${userId}`);
+  componentDidMount() {
+    this.ifPostNotExist();
+  }
+  componentDidUpdate(prevProps, prevState) {
+    this.ifPostNotExist();
+  }
+  ifPostNotExist() {
+    const {
+      getPostExist,
+      userId,
+      targetDate,
+      status,
+      match,
+      history
+    } = this.props;
+
+    if (!getPostExist(targetDate.year, targetDate.month, match.params.date)) {
+      status === 'SUCCESS' && history.replace(`/calogs/${userId}`);
     }
-    return true;
   }
   render() {
-    const { onPostRemove, onPostView, posts, match, targetDate } = this.props;
-
+    const {
+      getPostExist,
+      onGoBack,
+      onPostRemove,
+      onPostView,
+      posts,
+      match,
+      targetDate
+    } = this.props;
     const postArray =
-      posts[targetDate.year] &&
-      posts[targetDate.year][targetDate.month] &&
-      posts[targetDate.year][targetDate.month][match.params.date] &&
+      getPostExist(targetDate.year, targetDate.month, match.params.date) &&
       posts[targetDate.year][targetDate.month][match.params.date].map(post => {
         return (
           <PostItem
@@ -65,6 +83,11 @@ class PostList extends Component {
         <List>
           <ul>{postArray}</ul>
         </List>
+        <div className="btn_group">
+          <button className="blue" onClick={onGoBack}>
+            나가기
+          </button>
+        </div>
       </Wrap>
     );
   }

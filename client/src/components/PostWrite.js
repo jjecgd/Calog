@@ -88,8 +88,49 @@ const Write = styled.div`
 `;
 
 class PostWrite extends Component {
+  componentDidMount() {
+    this.loadPost();
+  }
   shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.writeForm !== this.props.writeForm;
+    return (
+      nextProps.writeForm !== this.props.writeForm ||
+      nextProps.status !== this.props.status
+    );
+  }
+  componentDidUpdate(prevProps, prevState) {
+    const { status } = this.props;
+
+    if (prevProps.status !== status && status === 'SUCCESS') {
+      this.loadPost();
+    }
+  }
+  loadPost() {
+    const {
+      onPostModify,
+      getPostExist,
+      userId,
+      mode,
+      status,
+      posts,
+      match,
+      history
+    } = this.props;
+    if (mode === 'modify' && status === 'SUCCESS') {
+      const { id, year, month, date } = match.params;
+      const isPostExist = getPostExist(year, month, date);
+      const postData =
+        isPostExist && posts[year][month][date].find(post => post._id === id);
+      if (postData) {
+        onPostModify({
+          title: postData.title,
+          content: postData.content,
+          todoTitle: '',
+          todoContent: postData.todoContent
+        });
+      } else {
+        history.replace(`/calogs/${userId}`);
+      }
+    }
   }
   handleTodoAdd = e => {
     const { onTodoAdd, writeForm } = this.props;
@@ -110,10 +151,11 @@ class PostWrite extends Component {
   render() {
     const { handleTodoAdd, handleKeyPress } = this;
     const {
-      onPostClose,
+      onGoBack,
       onChange,
       onPostUpload,
       onTodoRemove,
+      mode,
       writeForm,
       match
     } = this.props;
@@ -164,13 +206,13 @@ class PostWrite extends Component {
           </div>
 
           <div className="btn_group">
-            <button className="red" onClick={onPostClose}>
+            <button className="red" onClick={onGoBack}>
               취소
             </button>
             <button
               className="orange"
               onClick={
-                match.url.split('/')[3] === 'modify'
+                mode === 'modify'
                   ? e => {
                       e.preventDefault();
                       onPostUpload(match.params.id);
@@ -178,7 +220,7 @@ class PostWrite extends Component {
                   : onPostUpload
               }
             >
-              {match.url.split('/')[3] === 'modify' ? '수정완료' : '게시'}
+              {mode === 'modify' ? '수정완료' : '게시'}
             </button>
           </div>
         </Write>

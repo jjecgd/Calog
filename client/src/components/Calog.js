@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import Calendar from 'react-calendar/dist/entry.nostyle';
 
 import { replaceZero } from '../utils/number';
 
@@ -27,7 +28,6 @@ class Calog extends Component {
       onPostStart,
       onPostListView,
       onActiveDateChange,
-      Calendar,
       status,
       isOwner,
       currentDate,

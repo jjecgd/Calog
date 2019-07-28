@@ -4,12 +4,15 @@ import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import HeaderBar from '../components/HeaderBar';
+
+import * as loginActions from '../store/modules/login';
 import * as caloggersActions from '../store/modules/caloggers';
 
 const Wrap = styled.div`
   padding: 6rem 2rem 2rem;
 `;
-const Caloger = styled(Link)`
+const Calogger = styled(Link)`
   display: inline-block;
   margin: 0.5rem;
   padding: 0.5rem 1rem;
@@ -27,21 +30,6 @@ const Caloger = styled(Link)`
     background: #5f3dc4;
   }
 `;
-const Header = styled.header`
-  z-index: 3;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: #099268;
-  h1 {
-    padding: 1rem;
-    text-align: center;
-    font-weight: 300;
-    font-size: 2rem;
-    color: #fff;
-  }
-`;
 
 class CalogGobalContainer extends Component {
   componentDidMount() {
@@ -49,18 +37,21 @@ class CalogGobalContainer extends Component {
     caloggersActions.getCaloggers();
   }
   render() {
-    const { calogUsers } = this.props;
-    const caloggers = calogUsers.map(caloger => (
-      <Caloger to={`calogs/${caloger.id}`} key={caloger._id}>
-        {caloger.nickname}
-      </Caloger>
+    const { loginActions, calogActions, calogUsers, history } = this.props;
+    const caloggers = calogUsers.map(calogger => (
+      <Calogger to={`calogs/${calogger.id}`} key={calogger._id}>
+        {calogger.nickname}
+      </Calogger>
     ));
 
     return (
       <Wrap>
-        <Header>
-          <h1>Caloggers</h1>
-        </Header>
+        <HeaderBar
+          loginActions={loginActions}
+          calogActions={calogActions}
+          history={history}
+          mode="caloggers"
+        />
         {caloggers}
       </Wrap>
     );
@@ -74,6 +65,7 @@ const mapStateToProps = ({ login, caloggers }) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  loginActions: bindActionCreators(loginActions, dispatch),
   caloggersActions: bindActionCreators(caloggersActions, dispatch)
 });
 

@@ -256,6 +256,9 @@ const GlobalStyles = createGlobalStyle`
                 cursor:default;
                 outline:none;
                 pointer-events:none;
+                &.today{
+                  background:#f3f4f6;
+                }
                 &:hover{
                   background:#f3f4f6;
                 }

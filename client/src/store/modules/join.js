@@ -1,12 +1,12 @@
 import { createAction, handleActions } from 'redux-actions';
 import produce from 'immer';
 
-const INITIALIZE = 'join/INITIALIZE';
+const INITIALIZE_FORM = 'join/INITIALIZE_FORM';
 const JOIN = 'join/JOIN';
 const CHANGE_INPUT = 'join/CHANGE_INPUT';
 const BLUR_INPUT = 'join/BLUR_INPUT';
 
-export const initialize = createAction(INITIALIZE);
+export const initializeForm = createAction(INITIALIZE_FORM);
 export const join = createAction(JOIN);
 export const changeInput = createAction(CHANGE_INPUT, (target, value) => ({
   target,
@@ -28,7 +28,7 @@ const initialState = {
 
 export default handleActions(
   {
-    [INITIALIZE]: (state, action) => initialState,
+    [INITIALIZE_FORM]: (state, action) => initialState,
     [CHANGE_INPUT]: (state, action) =>
       produce(state, draft => {
         draft[action.payload.target].value = action.payload.value;

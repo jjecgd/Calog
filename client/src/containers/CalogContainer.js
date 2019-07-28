@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import styled from 'styled-components';
-import Calendar from 'react-calendar/dist/entry.nostyle';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Route } from 'react-router-dom';
 import { getFormatNow } from '../utils/moment';
 import { replaceZero } from '../utils/number';
 
+import HeaderBar from '../components/HeaderBar';
 import Calog from '../components/Calog';
 import PostWrite from '../components/PostWrite';
 import PostList from '../components/PostList';
@@ -15,27 +14,6 @@ import PostView from '../components/PostView';
 
 import * as loginActions from '../store/modules/login';
 import * as calogActions from '../store/modules/calog';
-
-const Header = styled.header`
-  z-index: 3;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: #099268;
-  h1 {
-    padding: 1rem;
-    text-align: center;
-    font-weight: 300;
-    font-size: 2rem;
-    color: #fff;
-  }
-  .btn_group {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-  }
-`;
 
 class CalogContainer extends Component {
   componentDidMount() {
@@ -68,7 +46,7 @@ class CalogContainer extends Component {
     const { calogActions, targetDate, history, match } = this.props;
     const currentCalog = this.getCurrentCalog();
 
-    calogActions.initialize();
+    calogActions.initializeForm();
     calogActions.loading(currentCalog, targetDate.year, targetDate.month);
     if (where === 'back') {
       history.go(-1);
@@ -79,14 +57,6 @@ class CalogContainer extends Component {
   handleActiveDateChange = date => {
     const { calogActions } = this.props;
     calogActions.changeActiveDate(date);
-  };
-  handleLogout = () => {
-    const { loginActions, calogActions } = this.props;
-    axios.post('/api/account/logout').then(res => {
-      loginActions.logout();
-      calogActions.logout();
-      window.localStorage.clear();
-    });
   };
   handleGoBack = e => {
     // 글쓰기 / 글보기 닫음
@@ -247,6 +217,8 @@ class CalogContainer extends Component {
       handleTodoToggle
     } = this;
     const {
+      loginActions,
+      calogActions,
       userId,
       currentDate,
       writeForm,
@@ -256,54 +228,35 @@ class CalogContainer extends Component {
       history,
       match
     } = this.props;
-    const isOwner = userId === match.params.id;
+    const currentCalog = this.getCurrentCalog();
+    const isOwner = userId === currentCalog;
 
     return (
       <div>
-        <Header>
-          <h1>{match.params.id}'s Calog</h1>
-          <div className="btn_group">
-            <button
-              className="blue"
-              onClick={() => {
-                history.push('/caloggers');
-              }}
-            >
-              Caloggers
-            </button>
-            {userId !== '' ? (
-              <button className="red" onClick={handleLogout}>
-                Logout
-              </button>
-            ) : (
-              <button
-                className="blue"
-                onClick={() => {
-                  history.push('/login');
-                }}
-              >
-                Login
-              </button>
-            )}
-          </div>
-        </Header>
+        <HeaderBar
+          loginActions={loginActions}
+          calogActions={calogActions}
+          userId={userId}
+          history={history}
+          currentCalog={currentCalog}
+          mode="calog"
+        />
         <Route
           path={`${match.url}`}
           exact
           render={props => (
             <Calog
               {...props}
-              status={status}
-              isOwner={isOwner}
               onLogout={handleLogout}
               onPostStart={handlePostStart}
               onPostListView={handlePostListView}
               onActiveDateChange={handleActiveDateChange}
-              Calendar={Calendar}
+              status={status}
               userId={userId}
               currentDate={currentDate}
               targetDate={targetDate}
               posts={posts}
+              isOwner={isOwner}
             />
           )}
         />
@@ -319,8 +272,8 @@ class CalogContainer extends Component {
                   onChange={handleChange}
                   onTodoAdd={handleTodoAdd}
                   onTodoRemove={handleTodoRemove}
-                  mode="write"
                   writeForm={writeForm}
+                  mode="write"
                 />
               )}
             />
@@ -338,10 +291,10 @@ class CalogContainer extends Component {
                   onTodoAdd={handleTodoAdd}
                   onTodoRemove={handleTodoRemove}
                   status={status}
-                  mode="modify"
-                  posts={posts}
                   userId={userId}
                   writeForm={writeForm}
+                  posts={posts}
+                  mode="modify"
                 />
               )}
             />
@@ -358,8 +311,8 @@ class CalogContainer extends Component {
               onTodoToggle={handleTodoToggle}
               targetDate={targetDate}
               posts={posts}
-              userId={userId}
               isOwner={isOwner}
+              currentCalog={currentCalog}
             />
           )}
         />
@@ -372,10 +325,10 @@ class CalogContainer extends Component {
               onGoBack={handleGoBack}
               onPostRemove={handlePostRemove}
               onPostView={handlePostView}
-              targetDate={targetDate}
               status={status}
-              userId={userId}
+              targetDate={targetDate}
               posts={posts}
+              currentCalog={currentCalog}
             />
           )}
         />

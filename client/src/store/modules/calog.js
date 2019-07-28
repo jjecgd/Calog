@@ -7,7 +7,7 @@ const LOADING = 'calog/LOADING';
 const LOADING_SUCCESS = 'calog/LOADING_SUCCESS';
 const LOADING_FAILURE = 'calog/LOADING_FAILURE';
 const LOGOUT = 'calog/LOGOUT';
-const INITIALIZE = 'calog/INITIALIZE';
+const INITIALIZE_FORM = 'calog/INITIALIZE_FORM';
 const CHANGE_ACTIVE_DATE = 'calog/CHANGE_ACTIVE_DATE';
 const CHANGE_INPUT = 'calog/CHANGE_INPUT';
 const POST_VIEW = 'calog/POST_VIEW';
@@ -34,7 +34,7 @@ export const loading = (currentCalog, year, month) => dispatch => {
     });
 };
 export const logout = createAction(LOGOUT);
-export const initialize = createAction(INITIALIZE);
+export const initializeForm = createAction(INITIALIZE_FORM);
 export const changeActiveDate = createAction(
   CHANGE_ACTIVE_DATE,
   currentDate => ({
@@ -160,7 +160,7 @@ export default handleActions(
       produce(state, draft => {
         draft.status = '';
       }),
-    [INITIALIZE]: (state, action) =>
+    [INITIALIZE_FORM]: (state, action) =>
       produce(state, draft => {
         draft.writeForm = {
           title: '',

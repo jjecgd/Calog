@@ -70,10 +70,10 @@ class PostView extends Component {
       onGoBack,
       onTodoRemove,
       onTodoToggle,
-      posts,
       targetDate,
-      isOwner,
-      match
+      posts,
+      match,
+      isOwner
     } = this.props;
     const isPostExist = getPostExist(
       targetDate.year,
@@ -157,11 +157,11 @@ class PostView extends Component {
                 <button
                   className="teal"
                   onClick={e => {
-                    const { match, history, userId } = this.props;
+                    const { match, history, currentCalog } = this.props;
 
                     e.stopPropagation();
                     history.push(
-                      `/calogs/${userId}/modify/${date.year}/${date.month}/${date.date}/${match.params.id}`
+                      `/calogs/${currentCalog}/modify/${date.year}/${date.month}/${date.date}/${match.params.id}`
                     );
                   }}
                 >

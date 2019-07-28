@@ -60,7 +60,7 @@ class JoinFormContainer extends Component {
       .then(res => {
         alert('가입이 완료되었습니다.');
         history.replace('/login');
-        joinActions.initialize();
+        joinActions.initializeForm();
       })
       .catch(err => {
         console.log(err);
@@ -70,7 +70,7 @@ class JoinFormContainer extends Component {
     const { joinActions, history } = this.props;
 
     e.preventDefault();
-    joinActions.initialize();
+    joinActions.initializeForm();
     history.push('/login');
   };
   render() {

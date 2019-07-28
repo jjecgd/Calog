@@ -39,7 +39,7 @@ class PostList extends Component {
   ifPostNotExist() {
     const {
       getPostExist,
-      userId,
+      currentCalog,
       targetDate,
       status,
       match,
@@ -47,7 +47,7 @@ class PostList extends Component {
     } = this.props;
 
     if (!getPostExist(targetDate.year, targetDate.month, match.params.date)) {
-      status === 'SUCCESS' && history.replace(`/calogs/${userId}`);
+      status === 'SUCCESS' && history.replace(`/calogs/${currentCalog}`);
     }
   }
   render() {
